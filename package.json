@@ -1,0 +1,15 @@
+{
+  "scripts": {
+    "dev": "vuepress dev docs",
+    "build": "vuepress build docs",
+    "depoly": "depoly.sh"
+  },
+  "keywords": [
+    "Relsola的博客",
+    "Relsola"
+  ],
+  "dependencies": {
+    "element-ui": "^2.10.0",
+    "vuepress": "^1.9.9"
+  }
+}
