@@ -1,2 +1,0 @@
-# createApp
-createApp介绍

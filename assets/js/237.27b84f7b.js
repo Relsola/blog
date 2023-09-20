@@ -1,0 +1,1 @@
+(window.webpackJsonp=window.webpackJsonp||[]).push([[237],{441:function(p,n,s){p.exports=s.p+"assets/img/patch1.89b5fa32.png"}}]);
