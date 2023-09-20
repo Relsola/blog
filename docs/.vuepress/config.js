@@ -1,148 +1,145 @@
-const nav = require('./utils/nav.js')
-const { ua } = require('./ua.js')
-const { webpackSidebar, vueAnalysisSidebar, vueNextAnalysisSidebar } = nav
+const { resolve } = require('path')
 module.exports = {
   title: 'Relsola',
   description: 'Relsola的个人博客',
   base: '/blog/',
-  head: [
-    ['link', { rel: 'icon', href: '/icon.png' }],
-    [...ua]
-  ],
+  head: [['link', { rel: 'icon', href: '/icon.png' }]],
   port: 3000,
   markdown: {
     lineNumbers: false
   },
   themeConfig: {
     sidebar: 'auto',
-    repo: 'https://github.com/wangtunan/blog',
+    repo: 'https://github.com/Relsola/blog',
     repoLabel: 'Github',
     nav: [
       {
         text: 'JavaScript',
+        items:
+          [
+            { text: 'JavaScript基础', link: '/JavaScript/base' },
+            { text: 'ES6', link: '/JavaScript/es6' },
+            { text: 'JavaScript手写系列', link: '/JavaScript/handwrite' },
+            { text: '补充', link: '/JavaScript/complement' },
+            {
+              text: 'BOM和DOM',
+              items:
+                [
+                  { text: 'BOM', link: '/JavaScript/bom' },
+                  { text: 'DOM', link: '/JavaScript/dom' }
+                ]
+            },
+            {
+              text: 'JavaScript进阶',
+              items:
+                [
+                  { text: '函数', link: '/JavaScript/function' },
+                  { text: '异步编程', link: '/JavaScript/asyncpro' },
+                  { text: '设计模式', link: '/JavaScript/designPattern' },
+                  { text: '数据结构与算法', link: '/JavaScript/algorithm' },
+                ]
+            }
+          ]
+      },
+
+      {
+        text: 'Vue',
         items: [
           {
-            text: 'JavaScript基础',
-            link: '/JavaScript/base'
+            text: 'Vue2.0',
+            items:
+              [
+                { text: 'Vue2基础', link: '/vue/vue2/base' },
+                { text: 'Vue2组件', link: '/vue/vue2/components' },
+                { text: 'Vue2源码', link: '/vue/vue2/sourceCode' }
+              ]
           },
           {
-            text: 'ES6+语法',
-            link: '/JavaScript/es6'
+            text: 'Vue3.0',
+            items:
+              [
+                { text: 'Vue3基础', link: '/vue/vue3/base' },
+                { text: 'Vue3组件', link: '/vue/vue3/components' },
+                { text: 'Vue3源码', link: '/vue/vue3/sourceCode' }
+              ]
           },
           {
-            text: 'JavaScript手写系列',
-            link: '/JavaScript/handwrite'
+            text: '补充',
+            items:
+              [
+                { text: 'Vue应用测试', link: '/vue/vueTest' },
+                { text: 'Nuxt.js', link: '/vue/nuxt' },
+              ]
           }
         ]
       },
+
       {
-        text: '前端书籍',
+        text: 'React',
+        items:
+          [
+            { text: 'React基础', link: '/react/base' },
+            { text: 'React进阶', link: '/react/advanced' },
+            { text: 'React生态', link: '/react/ecology' },
+            { text: 'React原理', link: '/react/principle' },
+            { text: 'React状态管理', link: '/react/stateMana' },
+            { text: 'React-Hooks', link: '/react/hooks' },
+            { text: 'React源码', link: '/react/sourceCode' }
+          ]
+      },
+
+      {
+        text: '读书感悟',
+        link: '/books/one'
+      },
+
+      {
+        text: 'Node.js',
         items: [
-          {
-            text: 'JavaScript书籍',
-            items: [
-              {
-                text: '你不知道的JavaScript(上)',
-                link: '/books/javascript/know-up'
-              },
-              {
-                text: '你不知道的JavaScript(中下)',
-                link: '/books/javascript/know-down'
-              },
-              {
-                text: 'JavaScript数据结构和算法',
-                link: '/books/javascript/algorithm'
-              },
-              {
-                text: 'JavaScript设计模式与开发实践',
-                link: '/designPattern/'
-              },
-              {
-                text: '深入理解ES6',
-                link: '/books/javascript/es6'
-              }
-            ]
-          },
-          {
-            text: 'Git书籍',
-            items: [
-              {
-                text: '精通Git',
-                link: '/books/git/'
-              }
-            ]
-          }
+          { text: 'Node.js基础', link: '/node/base' },
+          { text: 'Express', link: '/node/express' },
+          { text: 'Koa', link: '/node/koa' },
+          { text: 'Nest.js', link: '/node/nest' },
         ]
       },
+
       {
-        text: 'Vue源码分析',
-        items: [
-          { text: 'Vue2.0源码分析', link: '/vueAnalysis/introduction/' },
-          { text: 'Vue3.0源码分析', link: '/vueNextAnalysis/introduction/' }
-        ]
+        text: '前端工程化',
+        items:
+          [
+            { text: 'Webpack', link: '/project/webpack' },
+            { text: 'Vite', link: '/project/vite' },
+            { text: 'Rollup', link: '/project/rollup' },
+            { text: 'Git操作', link: '/project/git' }
+          ]
       },
-      {
-        text: '自动化测试',
-        items: [
-          { text: 'Vue应用测试', link: '/test/vueTest' }
-        ]
-      },
-      {
-        text: '打包工具',
-        items: [
-          {
-            text: 'Webpack',
-            link: '/webpack/webpack/'
-          },
-          {
-            text: 'Rollup',
-            link: '/rollup/'
-          }
-        ]
-      },
+
       {
         text: 'TypeScript',
         items: [
-          {
-            text: 'TypeScript基础',
-            link: '/typescript/base'
-          },
-          {
-            text: 'TypeScript类型挑战',
-            link: '/typescript/challenge'
-          }
+          { text: 'TypeScript基础', link: '/typescript/base' },
+          { text: 'TypeScript类型挑战', link: '/typescript/challenge' }
         ]
       },
+
       {
         text: 'CSS预编译器',
-        items: [
-          {
-            text: 'SASS',
-            link: '/cssPrecompiler/sass/'
-          },
-          {
-            text: 'Sass-Loader源码分析',
-            link: '/cssPrecompiler/sassLoader/'
-          }
-        ]
-      },
-      {
-        text: 'VuePress',
-        link: '/vuepress/'
+        items:
+          [
+            { text: 'Sass', link: '/cssPrecompile/sass' },
+            { text: 'Less', link: '/cssPrecompile/less' },
+            { text: 'tailwindcss', link: '/cssPrecompile/tailwindcss' },
+          ]
       }
     ],
-    sidebar: {
-      '/webpack/webpack/': [webpackSidebar],
-      '/vueAnalysis/': vueAnalysisSidebar,
-      '/vueNextAnalysis/': vueNextAnalysisSidebar
-    }
   },
   configureWebpack: {
     resolve: {
       alias: {
         '@images': '../images',
         '@vuepress': '../images/vuepress',
-        '@components': '../.vuepress/components'
+        '@components': '../.vuepress/components',
+        '@': resolve(__dirname, 'public', 'assets')
       }
     }
   }

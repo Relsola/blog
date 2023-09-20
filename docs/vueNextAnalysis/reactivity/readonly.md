@@ -1,2 +1,0 @@
-# readonly
-readonly介绍
