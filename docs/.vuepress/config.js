@@ -22,14 +22,6 @@ module.exports = {
             { text: 'JavaScript手写系列', link: '/JavaScript/handwrite' },
             { text: '补充', link: '/JavaScript/complement' },
             {
-              text: 'BOM和DOM',
-              items:
-                [
-                  { text: 'BOM', link: '/JavaScript/bom' },
-                  { text: 'DOM', link: '/JavaScript/dom' }
-                ]
-            },
-            {
               text: 'JavaScript进阶',
               items:
                 [

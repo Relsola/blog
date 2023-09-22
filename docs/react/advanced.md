@@ -2,11 +2,11 @@
 
 ### 3.1.1 react事件和DOM事件
 
-| react事件  |  原生事件  |
-| :-------: | :--------: | 
-|  onClick |  onclick |  
-|  onClick={eventListener} |  onclick="eventListener()" |  
-|  e.preventDefalut |  onclick="javascript" |  
+|        react事件        |         原生事件          |
+| :---------------------: | :-----------------------: |
+|         onClick         |          onclick          |
+| onClick={eventListener} | onclick="eventListener()" |
+|    e.preventDefalut     |   onclick="javascript"    |
 
 ```jsx{10}
 class ListItem extends Component {
