@@ -1,0 +1,1 @@
+(window.webpackJsonp=window.webpackJsonp||[]).push([[89],{282:function(p,i,n){p.exports=n.p+"assets/img/tailwindCSSgroup.97977e19.gif"}}]);

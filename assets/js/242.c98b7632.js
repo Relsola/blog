@@ -1,0 +1,1 @@
+(window.webpackJsonp=window.webpackJsonp||[]).push([[242],{309:function(p,n,s){p.exports=s.p+"assets/img/whyredux.30c88907.png"}}]);
