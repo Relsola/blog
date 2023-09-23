@@ -118,9 +118,9 @@ module.exports = {
         text: 'CSS预编译器',
         items:
           [
-            { text: 'Sass', link: '/cssPrecompile/sass' },
-            { text: 'Less', link: '/cssPrecompile/less' },
             { text: 'tailwindcss', link: '/cssPrecompile/tailwindcss' },
+            { text: 'Less', link: '/cssPrecompile/less' },
+            { text: 'Sass', link: '/cssPrecompile/sass' },
           ]
       }
     ],
