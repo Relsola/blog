@@ -1,31 +1,19 @@
-手写系列## JavaScript进阶面试题
+# 手写系列
 
-### 手写getQueryString
+## 获取地址栏参数值
 ::: tip
-给定一段URL和参数的名称，获取此参数的值
+webAPI `window.location.search` 获取搜索字符串。
 :::
 ```js
-var url = 'https://www.baidu.com/s?id=123&name=why&phone=13876769797';
-function getQueryString(name) {
-  var strs = '';
-  var index = url.indexOf('?');
-  if (index === -1) {
-    return undefined
-  }
-  strs = url.substring(index+1).split('&');
-  for (let index = 0; index < strs.length; index++) {
-    var splitItem = strs[index].split('=');
-    if(splitItem[0]==name) {
-      return splitItem[1];
-    }
-  }
-};
-
-// 测试：输出why
-console.log(getQueryString('name')); 
+function getQueryString(name){
+    const str =  window.location.search.substring(1);
+    const reg = new RegExp(`(?:^|&)${name}=([^&]+)(?:$|&)`)
+    const result = str.match(reg);
+    return result === null ? null : result[1];
+}
 ```
 
-### 手写自己的setInterval
+## 手写setInterval
 ::: tip
 用`requestAnimationFrame`实现自己的`setInterval`方法
 :::
@@ -62,77 +50,55 @@ const timer = obj.setInterval(() => {
 }, 500)
 ```
 
-### 手写call、apply和bind方法
-#### 手写Call
+## 手写 call apply bind
+
+#### call
 ```js
-Function.prototype.myCall = function (context) {
-  if (typeof this !== 'function') {
-    throw new TypeError('not a function')
-  }
-  const symbolFn = Symbol()
-  const args = [...arguments].slice(1)
-  context = context || window
-  context[symbolFn] = this
-  const result = context[symbolFn](...args)
-  delete context[symbolFn]
-  return result
+Function.prototype.myCall = function (context, ...arg) {
+    context = context ?? globalThis;
+    // 避免冲突 使用Symbol
+    const key = Symbol('key');
+    context[key] = this;
+    const result = context[key](...arg);
+    delete context[key];
+    return result;
 }
-const obj = {
-  name: 'obj'
-}
-function foo () {
-  console.log(this.name)
-}
-foo.myCall(obj) // obj
 ```
 
-#### 手写apply
+#### apply
 ```js
-Function.prototype.myApply = function(context) {
-  if(typeof this !== 'function') {
-    throw new TypeError('error');
-  }
-  context = context || window;
-  context.fn = this;
-  var result = arguments[1] ? context.fn(...arguments[1]) : context.fn();
-  delete context.fn;
-  return result;
+Function.prototype.myApply = function (context, rest) {
+    context = context ?? globalThis;
+    // 参数不符合要求返回 undefined
+    rest = Array.isArray(rest) ? rest : [undefined]
+    const key = Symbol('key');
+    context[key] = this;
+    const result = context[key](...rest);
+    delete context[key];
+    return result;
 }
-function foo(){
-  console.log(this.age);
-}
-var obj = {
-  age: 101
-}
-foo.myApply(obj); // 输出101
 ```
 
-#### 手写bind
+#### bind
 ```js
-Function.prototype.myBind = function(context) {
-  if(typeof this !== 'function') {
-    throw TypeError('error');
-  }
-  const self = this;
-  const args = [...arguments].slice(1);
-  return function F() {
-    if(this instanceof F) {
-      return new self(...args, ...arguments);
+Function.prototype.myBind = function (context, ...arg) {
+    const self = this;
+    const Bound = function () {
+        const thisArg = arg.concat(...arguments);
+        // 用于构造函数忽略 this 指向
+        return this instanceof Bound ?
+            new Bound(...thisArg)
+            : self.apply(context, thisArg);
     }
-    return self.apply(context, args.concat(...arguments));
-  }
+    // 保护目标原型
+    const emptyFn = function () { };
+    emptyFn.prototype = this.prototype;
+    Bound.prototype = new emptyFn();
+    return Bound;
 }
-function foo() {
-  console.log(this.age);
-}
-var obj = {
-  age: 121
-}
-var newFunc = foo.myBind(obj);
-newFunc(); // 输出121
 ```
 
-### 手写Promise
+### 手写 Promise
 **简易Promise：** 简易`Promise`并不完全符合`Promise/A+`规范，但面试时能写出简易`Promise`算是已经过关了。
 ```js
 // promise三个状态：pending(等待)、resolved(完成)、rejected(拒绝)
@@ -260,7 +226,7 @@ window.onresize = debounce(function() {
 }, 500)
 ```
 
-### 手写instanceof
+### 手写 instanceof
 ::: tip
 `instanceof`原理是在对象原型链中是否能找到执行类型的`prototype`
 :::
@@ -289,50 +255,50 @@ console.log(p1 instanceof Person)     // true
 console.log(p1 instanceof Object)     // true
 ```
 
-### 手写简易深拷贝
+### 深拷贝
 ::: tip
-案例只实现了简易的深拷贝函数，工作中推荐使用`lodash`的深拷贝方法。
+通过递归实现深拷贝。  
+`WeakMap` 弱引用优化循环引用。  
+工作中还是推荐直接使用`lodash`的深拷贝方法。
 :::
 ```js
-function isObject (obj) {
-  return (typeof obj === 'object') && obj !== null
+function deepClone(source, map = new WeakMap()) {
+    // 如果不是复杂数据类型 或者为 null，直接返回
+    if (typeof source !== "object" || source === null) return source;
+    if (source instanceof RegExp) return new RegExp(source);
+    if (source instanceof Date) return new Date(source);
+    if (source instanceof Error) return new Error(source);
+
+    // 解决循环引用 obj[key] = obj
+    if (map.has(source)) return map.get(source);
+    const cloneObj = Array.isArray(source) ? [] : {};
+    map.set(source, cloneObj);
+
+    for (const key in source) {
+        // 筛掉对象原型链上继承的属性
+        if (source.hasOwnProperty(key))
+            cloneObj[key] = deepClone(source[key], map);
+    }
+    return cloneObj;
 }
-function deepClone (obj) {
-  if (!isObject(obj)) {
-    return
-  }
-  const isArray = Array.isArray(obj)
-  const newObj = isArray ? [] : {}
-  Reflect.ownKeys(obj).forEach(key => {
-    const value = obj[key]
-    newObj[key] = isObject(value) ? deepClone(value) : value
-  })
-  return newObj
+
+
+const data = {
+    name: 'Jack',
+    date: [new Date(1536627600000), new Date(1540047600000)],
+
+    reg: new RegExp("\\w+"),
+    err: new Error('"x" is not defined'),
+
+    func: function () { console.log(1) },
+    val: undefined,
+    sym: Symbol('foo'),
+
+    nan: NaN,
+    infinityMax: Infinity,
 }
-const obj = {
-  id: Symbol('id'),
-  name: 'AAA',
-  age: 23,
-  colors: ['red'],
-  job: {
-    name: 'FE',
-    salary: 200
-  },
-  sayName: function () {
-    console.log('funciton')
-  }
-}
-const cloneObj = deepClone(obj)
-console.log(cloneObj.id)
-console.log(cloneObj.colors, obj.colors)
-console.log(cloneObj.job, obj.job)
-obj.job.name = 'UI'
-obj.job.salary = 300
-obj.colors.push('green')
-obj.sayName()
-console.log(cloneObj.colors, obj.colors)
-console.log(cloneObj.job, obj.job)
-cloneObj.sayName()
+
+console.log(deepClone(data));
 ```
 
 ### 手写对象属性值迭代器
@@ -621,48 +587,24 @@ JSONP('https://www.runoob.com/try/ajax/jsonp.php', params, function (data) {
 })
 ```
 
-### 手写new关键词方法
-`new`关键词调用构造函数的过程如下：
-1. 创建一个空对象，这个对象讲会作为执行构造函数执行之后返回对象的实例。
-2. 将空对象的`__proto__`指向构造函数的`prototype`。
-3. 将这个空对象赋值给构造函数内部的`this`，并执行构造函数。
-4. 根据构造函数的逻辑，返回第一步创建的对象或者构造函数显示的返回值。
+### 手写 new
+`new`操作符调用构造函数的过程如下：
+1. 创建一个空对象
+2. 将空对象的`__proto__`指向构造函数的`prototype`
+3. 将这个空对象赋值给构造函数内部的`this`，并执行构造函数
+4. 根据构造函数的逻辑，返回第一步创建的对象或者构造函数显示的返回值
 ```js
-function myNew (...args) {
-  // 1.获取构造函数
-  const constructor = args.shift()
-  // 2.创建空对象并设置原型
-  const obj = Object.create(constructor.prototype)
-  // 3.绑定this并执行构造函数
-  const result = constructor.apply(obj, args)
-  // 4.返回构造函数显示返回的值或新对象
-  return isObject(result) ? result : obj
+function myNew(constructor, ...arg) {
+    // 改变obj原型指向
+    const obj = Object.create(constructor.prototype);
+    // 将obj作为上下文this指向
+    const result = constructor.apply(obj, arg);
+    // 正确输出结果
+    return result !== null && typeof result === "object" ? result : obj;
 }
-function isObject (obj) {
-  return obj !== null && typeof obj === 'object'
-}
-// 案例一
-function Person (name) {
-  this.name = name
-}
-const p1 = myNew(Person, 'AAA')
-console.log(p1 instanceof Person)   // true
-console.log(p1.name)                // AAA
-
-// 案例二
-function Student (name) {
-  this.name = name
-  return {
-    name: 'AAA',
-    age: 23
-  }
-}
-const stu = myNew(Student, 'BBB')
-console.log(stu instanceof Student) // false
-console.log(stu) 
 ```
 
-### 手写类extends关键词方法
+### 手写 extends
 ```js
 function inherit (child, parent) {
   // 1.继承父类原型上的属性

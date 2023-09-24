@@ -67,6 +67,13 @@ export default {
 该警告将不再出现。  
 同时 `Tailwind CSS IntelliSense` 可以增强我们Tailwind的开发体验，在写类名时，可以进行智能提示和补全，并且每个旁边都会有对应的类名的详细属性；甚至鼠标放在现有类名上也会呈现具体样式细节。
 
+入口文件引入全局CSS
+```ts
+// main.ts
+import "./styles/tailwind.css";
+```
+
+tailwindCSS就配置好了。
 ## 特性
 
 我们可以先以官网的一个案例来了解TailwindCSS的使用
