@@ -1554,17 +1554,303 @@ export default {
 ```
 
 #### 循环引用
-组件是可以在它们自己的模板中调用自身的。不过它们只能通过 `name` 选项来做这件事：
+* 组件可以能通过 `name` 在它们自己的模板中调用自身。
+* 组件之间的循环引用可以使用 webpack 的异步`import`解决。
+* 递归组件很可能导致无限循环，尽量少用。
+
+#### 模板定义的替代品
+
+1. 内联模板 `inline-template`：
 ```html
+<my-component inline-template>
+  <div>
+    <p>These are compiled as the component's own template.</p>
+    <p>Not parent's transclusion content.</p>
+  </div>
+</my-component>
+```
+这个组件将会使用其里面的内容作为模板。
+::: warning 注意
+内联模板需要定义在 Vue 所属的 DOM 元素内。
+  
+不过，`inline-template` 会让模板的作用域变得更加难以理解。所以作为最佳实践，请在组件内优先选择 `template` 选项或 `.vue` 文件里的一个 `<template>` 元素来定义模板。
+:::
+
+2. `X-Template` ，定义模板的方式是在一个 `<script>` 元素中，并为其带上 `text/x-template` 的类型，然后通过一个 `id` 将模板引用过去。
+  
+```html
+<script type="text/x-template" id="hello-world-template">
+  <p>Hello hello hello</p>
+</script>
 ```
 
+```js
+Vue.component('hello-world', {
+  template: '#hello-world-template'
+})
+```
+::: warning 注意
+`x-template` 需要定义在 `Vue` 所属的 DOM 元素外。
+:::
+
+#### 强制更新
+有时候 `vue` 检测不到**数组**和**对象**的更新，那么你可以通过 `$forceUpdate` 来强制更新数据。
+```js
+this.$forceUpdate();
+```
+
+#### 通过 `v-once` 创建低开销的静态组件
+当一个组件包含了大量静态内容，你可以在根元素上添加 `v-once` 以确保这些内容只计算一次然后缓存起来：
+```html
+<div v-once>
+  <h1>Terms of Service</h1>
+  ... a lot of static content ...
+</div>
+```
+
+
 ### 混入
+混入 (mixin) 提供了一种非常灵活的方式，来分发 Vue 组件中的可复用功能。一个混入对象可以包含任意组件选项。当组件使用混入对象时，所有混入对象的选项将被“混合”进入该组件本身的选项。
+```vue
+<template>
+  <div>
+    <h1>{{ ok }}</h1>
+    <button @click="gn"></button>
+  </div>
+</template>
+
+<script>
+const mixin = {
+  data: () => ({
+    ok: "OK",
+  }),
+  methods: {
+    gn() {
+      this.ok = this.ok === "OK" ? "NO" : "OK";
+    },
+  },
+  created() {
+    console.log(this.gn);
+  }
+};
+
+export default {
+  // 当组件和混入对象含有同名选项时，数据对象在内部会进行递归合并，并在发生冲突时以组件数据优先。
+
+  // 同名钩子函数将合并为一个数组，因此都将被调用。另外，混入对象的钩子将在组件自身钩子之前调用。
+  mixins: [mixin],
+
+  methods: {
+    gn: () => "Once",
+  },
+
+  created() {
+    console.log(this.ok);
+  }
+};
+</script>
+```
+
+#### 全局混入
+::: warning 注意
+* 谨慎使用全局混入，因为它会影响每个单独创建的 Vue 实例 (包括第三方组件)
+  
+* 大多数情况下，只应当应用于自定义选项。
+  
+* 推荐将其作为插件发布，以避免重复应用混入。
+:::
+
+```js
+// main.js
+Vue.mixin({
+    data: () => ({
+        once: 10,
+    }),
+    methods: {
+        fn() {
+            this.once++
+        }
+    }
+})
+
+// 自定义选项合并策略
+Vue.config.optionMergeStrategies.myOption = function (toVal, fromVal) {
+    // 返回合并后的值 默认覆盖
+}
+
+// 混入策略高级例子
+const merge = Vue.config.optionMergeStrategies.computed
+Vue.config.optionMergeStrategies.vuex = function (toVal, fromVal) {
+    if (!toVal) return fromVal
+    if (!fromVal) return toVal
+    return {
+        getters: merge(toVal.getters, fromVal.getters),
+        state: merge(toVal.state, fromVal.state),
+        actions: merge(toVal.actions, fromVal.actions)
+    }
+}
+```
 
 ### 自定义指令
 
+#### 局部定义
+```js
+ directives: {
+    // 第一种写法  写成对象的形式
+    one: {
+      // 这个inserted是固定的
+      // 第一个参数是绑定的dom节点
+      // 第二个参数是携带的信息
+      inserted: function (el, op) {
+        "函数体";
+      },
+    },
+
+    // 函数简写
+    two(el, op) {
+      "函数体";
+    },
+  },
+```
+
+#### 全局定义
+```js
+// main.js
+// 第一个参数 就是指令的名字
+// 在 new Vue() 之前定义 
+Vue.directive("objSet", {
+    // 数组对象去重
+    inserted: (el, op) => {
+        el.innerHTML =
+            [...new Set(
+                op.value.map(
+                    item => JSON.stringify(item)))]
+    }
+})
+```
+
+#### 钩子函数
+一个指令定义对象可以提供如下几个钩子函数 (均为可选)：
+
+* `bind`：只调用一次，指令第一次绑定到元素时调用。在这里可以进行一次性的初始化设置。
+
+* `inserted`：被绑定元素插入父节点时调用 (仅保证父节点存在，但不一定已被插入文档中)。
+
+* `update`：所在组件的 VNode 更新时调用，但是可能发生在其子 VNode 更新之前。指令的值可能发生了改变，也可能没有。但是你可以通过比较更新前后的值来忽略不必要的模板更新。
+
+#### 钩子函数参数
+
+指令钩子函数会被传入以下参数：
+
+* `el`：指令所绑定的元素，可以用来直接操作 DOM。
+* `binding`：一个对象，包含以下属性：
+  - `name`：指令名，不包括 v- 前缀。
+  - `value`：指令的绑定值。
+  - `oldValue`：指令绑定的前一个值，仅在 `update` 和 `componentUpdated` 钩子中可用，无论值是否改变都可用。
+  - `expression`：字符串形式的指令表达式。
+  - `arg`：传给指令的参数，可选。
+  - `modifiers`：一个包含修饰符的对象。
+* `vnode`：Vue 编译生成的虚拟节点。
+* `oldVnode`：上一个虚拟节点，仅在 `update` 和 `componentUpdated` 钩子中可用。
+
 ### 过滤器
+Vue 允许你自定义过滤器，可被用于一些常见的文本格式化。
+
+#### 局部定义
+```js
+filters: {
+  fil(arg) {
+    "函数体";
+  },
+},
+```
+
+#### 全局定义
+```js
+Vue.filter("objSet", (arr) =>
+    [...Array.from(new Set(arr.
+        map(item => JSON.stringify(item)))).
+        map(item => JSON.parse(item))]
+)
+```
+使用：
+```html
+<p>{{ info | objSet }}</p>
+```
 
 ### 插件
+
+插件通常用来为 Vue 添加全局功能。插件的功能范围没有严格的限制——一般有下面几种：
+
+1. 添加全局方法或者 property。
+
+2. 添加全局资源：指令/过滤器/过渡等。
+
+3. 通过全局混入来添加一些组件选项。如
+
+4. 添加 Vue 实例方法，通过把它们添加到 Vue.prototype 上实现。
+
+5. 一个库，提供自己的 API，同时提供上面提到的一个或多个功能。
+
+#### 开发插件
+```js
+export default {
+
+    // 一定有一个install函数 install函数有两个参数
+    // 第一个参数是Vue构造器 第二个参数是配置项option
+
+    install(Vue, options) {
+
+        // 自定义指令
+        Vue.directive("objSet", {
+            // 数组对象去重
+            inserted: (el, op) => {
+                el.innerHTML =
+                    [...new Set(
+                        op.value.map(
+                            item => JSON.stringify(item)))]
+            }
+        })
+
+        // 过滤器
+        Vue.filter("objSet", (arr) =>
+            [...Array.from(new Set(arr.
+                map(item => JSON.stringify(item)))).
+                map(item => JSON.parse(item))]
+        )
+
+        // 注册一个子组件
+        Vue.component("Once", {
+            render(h) {
+                // 这个h函数的作用是渲染我们的虚拟DOM
+                return h("h1", { class: "once" }, "plugin中的组件")
+            }
+        })
+
+        // 在Vue原型上挂在一个属性
+        Vue.prototype.$double = function (val) {
+            switch (typeof val) {
+                case 'number':
+                    return val * 2;
+
+                case 'string':
+                    let num = Number(val)
+                    return isNaN(num) ? -1 : num * 2;
+
+                default:
+                    return -1;
+            }
+        }
+    }
+}
+```
+
+#### 使用插件
+在调用 `new Vue()` 之前完成
+```js
+import plugins from "@/plugin"
+Vue.use(plugins);
+```
 
 ## Vue2 生命周期函数
 
