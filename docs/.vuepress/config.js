@@ -16,48 +16,23 @@ module.exports = {
       {
         text: "JavaScript",
         items: [
-          { text: "JavaScript基础", link: "/JavaScript/base" },
-          { text: "ES6", link: "/JavaScript/es6" },
+          { text: "深入理解解JavaScript", link: "/JavaScript/base" },
+          { text: "深入理解ES6", link: "/JavaScript/es6" },
           { text: "JavaScript手写系列", link: "/JavaScript/handwrite" },
-          { text: "补充", link: "/JavaScript/complement" },
-          {
-            text: "JavaScript进阶",
-            items: [
-              { text: "函数", link: "/JavaScript/function" },
-              { text: "异步编程", link: "/JavaScript/asyncpro" },
-              { text: "设计模式", link: "/JavaScript/designPattern" },
-              { text: "数据结构与算法", link: "/JavaScript/algorithm" },
-            ],
-          },
+          { text: "JavaScript设计模式", link: "/JavaScript/designPattern" },
+          { text: "数据结构与算法", link: "/JavaScript/algorithm" },
         ],
       },
 
       {
         text: "Vue",
         items: [
-          {
-            text: "Vue2.0",
-            items: [
-              { text: "Vue2基础", link: "/vue/vue2/base" },
-              { text: "Vue2核心插件", link: "/vue/vue2/libraries" },
-              { text: "Vue2源码解读", link: "/vue/vue2/sourceCode" },
-            ],
-          },
-          {
-            text: "Vue3.0",
-            items: [
-              { text: "Vue3基础", link: "/vue/vue3/base" },
-              { text: "Vue3核心插件", link: "/vue/vue3/libraries" },
-              { text: "Vue3源码解读", link: "/vue/vue3/sourceCode" },
-            ],
-          },
-          {
-            text: "补充",
-            items: [
-              { text: "Vue测试", link: "/vue/vueTest" },
-              { text: "Nuxt.js", link: "/vue/nuxt" },
-            ],
-          },
+          { text: "Vue2基础", link: "/vue/vue2base" },
+          { text: "Vue3基础", link: "/vue/vue3base" },
+          { text: "Vue核心插件", link: "/vue/libraries" },
+          { text: "Vue测试", link: "/vue/vueTest" },
+          { text: "Vue2源码解读", link: "/vue/vue2sourceCode" },
+          { text: "Vue3源码解读", link: "/vue/vue3sourceCode" },
         ],
       },
 
@@ -69,23 +44,8 @@ module.exports = {
           { text: "React生态", link: "/react/ecology" },
           { text: "React原理", link: "/react/principle" },
           { text: "React状态管理", link: "/react/stateMana" },
-          { text: "React-Hooks", link: "/react/hooks" },
+          { text: "ReactHooks", link: "/react/hooks" },
           { text: "React源码", link: "/react/sourceCode" },
-        ],
-      },
-
-      {
-        text: "读书感悟",
-        link: "/books/one",
-      },
-
-      {
-        text: "Node.js",
-        items: [
-          { text: "Node.js基础", link: "/node/base" },
-          { text: "Express", link: "/node/express" },
-          { text: "Koa", link: "/node/koa" },
-          { text: "Nest.js", link: "/node/nest" },
         ],
       },
 
@@ -94,8 +54,11 @@ module.exports = {
         items: [
           { text: "Webpack", link: "/project/webpack" },
           { text: "Vite", link: "/project/vite" },
+          { text: "Docker", link: "/project/docker" },
           { text: "Rollup", link: "/project/rollup" },
           { text: "Git操作", link: "/project/git" },
+          { text: "计算机网络", link: "/project/git" },
+          { text: "浏览器原理", link: "/project/git" },
         ],
       },
 
