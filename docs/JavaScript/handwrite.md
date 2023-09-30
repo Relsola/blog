@@ -52,7 +52,7 @@ const timer = obj.setInterval(() => {
 
 ## 手写 call apply bind
 
-#### call
+### call
 ```js
 Function.prototype.myCall = function (context, ...arg) {
     context = context ?? globalThis;
@@ -65,7 +65,7 @@ Function.prototype.myCall = function (context, ...arg) {
 }
 ```
 
-#### apply
+### apply
 ```js
 Function.prototype.myApply = function (context, rest) {
     context = context ?? globalThis;
@@ -79,7 +79,7 @@ Function.prototype.myApply = function (context, rest) {
 }
 ```
 
-#### bind
+### bind
 ```js
 Function.prototype.myBind = function (context, ...arg) {
     const self = this;
@@ -98,164 +98,256 @@ Function.prototype.myBind = function (context, ...arg) {
 }
 ```
 
-### 手写 Promise
-**简易Promise：** 简易`Promise`并不完全符合`Promise/A+`规范，但面试时能写出简易`Promise`算是已经过关了。
+## 手写 Promise
+
+::: tip
+[参考文章](https://juejin.cn/post/7043758954496655397?searchId=20230930171436A8157BB9298B8B37FCB9)  
+
+要实现一个符合 Promise/A+ 规范的 Promise，需要注意以下几个要点：
+
+1. 状态转移：Promise 可以处于三种状态之一，分别是“pending”（等待状态）、“fulfilled”（已完成状态）和“rejected”（已拒绝状态）。当 Promise 转移到已完成或已拒绝状态时，需要保证状态不可逆转。
+
+2. 异步处理：Promise 可以处理异步操作，例如使用定时器或者在事件回调中执行异步代码。需要确保在异步操作完成之后，Promise 状态可以正确地转移。
+
+3. 链式调用：Promise 支持链式调用，也就是说每次调用 then() 方法后，都会返回一个新的 Promise。在 Promise 链中，每个 Promise 的状态都会受到前一个 Promise 的影响，因此需要保证每个 Promise 都能正确处理自己的状态。
+
+4. 错误处理：当 Promise 被拒绝时，可以通过 catch() 方法或在 then() 方法中传入第二个参数来处理错误。需要保证错误能够正确地冒泡，并且能够捕获到所有可能出现的错误。
+
+5. 静态方法：Promise 还有一些静态方法，例如 Promise.all()、Promise.race()、Promise.resolve() 和 Promise.reject() 等。这些方法与实例方法有所不同，需要额外注意实现。
+
+6. 链式调用的值传递：在链式调用中，每个 then() 方法可以返回一个值或一个新的 Promise。如果返回一个值，后续的 then() 方法应该接收到这个值。如果返回一个新的 Promise，后续的 then() 方法应该等待这个 Promise 完成，并接收到它的结果。
+:::
+
 ```js
-// promise三个状态：pending(等待)、resolved(完成)、rejected(拒绝)
-const PENDING = 'pending';
-const RESOLVED = 'resolved';
-const REJECTED = 'rejected';
-// 简易Promise
-function MyPromise(fn) {
-  const self = this;
-  self.state = PENDING;
-  self.value = null;
-  self.resolvedCallbacks = [];
-  self.rejectedCallbacks = [];
-  // 完成方法
-  function resolve(value) {
-    if(self.state===PENDING) {
-      self.state = RESOLVED;
-      self.value = value;
-      self.resolvedCallbacks.map(cb => cb(self.value));
+class myPromise {
+    // 三种状态
+    static PENDING = 'pending';
+    static FULFILLED = 'fulfilled';
+    static REJECTED = 'rejected';
+
+    constructor(func) {
+        this.PromiseState = myPromise.PENDING;
+        this.PromiseResult = null;
+        // 保存then回调函数的队列
+        this.onFulfilledCallbacks = [];
+        this.onRejectedCallbacks = [];
+        // bind使this指向正确
+        try { func(this.resolve.bind(this), this.reject.bind(this)) }
+        catch (error) { this.reject(error) };
     }
-  }
-  // 拒绝方法
-  function reject(value) {
-    if(self.state === PENDING) {
-      self.state = REJECTED;
-      self.value = value;
-      self.rejectedCallbacks.map(cb => cb(self.value));
+
+    resolve(value) { this.changeState(myPromise.FULFILLED, value) };
+    reject(value) { this.changeState(myPromise.REJECTED, value) };
+
+    // 改变状态
+    changeState(state, result) {
+        if (this.PromiseState !== myPromise.PENDING) return
+        this.PromiseState = state;
+        this.PromiseResult = result;
+        state === myPromise.FULFILLED ?
+            this.onFulfilledCallbacks.forEach(callback => { callback() })
+            : this.onRejectedCallbacks.forEach(callback => { callback() });
     }
-  }
-  // 执行传入的方法
-  try {
-    fn(resolve, reject);
-  } catch (e) {
-    reject(e);
-  }
+
+
+    runOnce(promise2, callback, resolve, reject, state) {
+        try {
+            if (typeof callback !== 'function') {
+                state ? resolve(this.PromiseResult) : reject(this.PromiseResult)
+            } else {
+                const x = callback(this.PromiseResult);
+                resolvePromise(promise2, x, resolve, reject);
+            }
+        } catch (e) { reject(e) }
+    }
+
+    // then 方法
+    then(onFulfilled, onRejected) {
+        const promise2 = new myPromise((resolve, reject) => {
+            switch (this.PromiseState) {
+                case myPromise.FULFILLED:
+                    setTimeout(() => {
+                        this.runOnce(promise2, onFulfilled, resolve, reject, true)
+                    });
+                    break;
+
+                case myPromise.REJECTED:
+                    setTimeout(() => {
+                        this.runOnce(promise2, onRejected, resolve, reject, false)
+                    });
+                    break;
+
+                default:
+                    this.onFulfilledCallbacks.push(() => {
+                        setTimeout(() => {
+                            this.runOnce(promise2, onFulfilled, resolve, reject, true)
+                        });
+                    });
+                    this.onRejectedCallbacks.push(() => {
+                        setTimeout(() => {
+                            this.runOnce(promise2, onRejected, resolve, reject, false)
+                        })
+                    });
+                    break;
+            }
+        })
+        return promise2
+    }
 }
-// then方法
-MyPromise.prototype.then = function(success, error) {
-  const self = this;
-  success = typeof success === 'function' ? success : v => {
-    return v;
-  };
-  error = typeof error === 'function' ? error : r => {
-    throw r;
-  };
-  if(self.state === PENDING) {
-    self.resolvedCallbacks.push(success);
-    self.rejectedCallbacks.push(error);
-  }
-  if(self.state === RESOLVED) {
-    success(self.value);
-  }
-  if(self.state === REJECTED) {
-    error(self.value)
-  }
+
+/**
+ * 对resolve()、reject() 进行改造增强 针对resolve()和reject()中不同值情况 进行处理
+ * @param  {promise} promise2 promise1.then方法返回的新的promise对象
+ * @param  {[type]} x         promise1中onFulfilled或onRejected的返回值
+ * @param  {[type]} resolve   promise2的resolve方法
+ * @param  {[type]} reject    promise2的reject方法
+ */
+function resolvePromise(promise2, x, resolve, reject) {
+    if (x === promise2) throw new TypeError('Chaining cycle detected for promise');
+
+    if (x instanceof myPromise)
+        x.then(y => { resolvePromise(promise2, y, resolve, reject) }, reject);
+    else if (x !== null && ((typeof x === 'object' || (typeof x === 'function')))) {
+        try {
+            var then = x.then;
+        } catch (e) { return reject(e) }
+
+        if (typeof then === 'function') {
+            let called = false;
+            try {
+                then.call(x, y => {
+                    if (called) return;
+                    called = true;
+                    resolvePromise(promise2, y, resolve, reject);
+                }, r => {
+                    if (called) return;
+                    called = true;
+                    reject(r);
+                })
+            } catch (e) {
+                if (called) return;
+                called = true;
+                reject(e);
+            }
+        } else resolve(x);
+
+    } else return resolve(x);
 }
-// 执行自定义Promise
-new MyPromise((resolve, reject) => {
-  setTimeout(() => {
-    resolve(100);
-  }, 3000)
-}).then(value => {
-  console.log(value);
-}, error => {
-  console.log(error);
-})
 ```
 
+## 节流防抖
 
-### 手写函数节流
+### 函数节流
 ::: tip
-函数节流：将原本1秒可能执行10次的函数，节流成1秒只执行2次-3次，有许多函数需要节流，例如：<br/>
-1. `window.onresize`事件
-2. `mouseover`事件
-3. `scroll`事件
-4. 其他事件
+函数节流：续触发事件但是在 n 秒中只执行一次函数，节流会稀释函数的执行频率。
 :::
 ```js
-function throttle (fn, interval = 500) {
-  let timer = null
-  let firstTime = true
-  return function () {
-    const args = arguments
-    const self = this
-    if (firstTime) {
-      fn.apply(self, args)
-      firstTime = false
-      return false
+// 定时器版
+function throttle(func, wait) {
+    let timer = null;
+    return function (...args) {
+        let context = this;
+        if (timer === null) {
+            timer = setTimeout(() => {
+                timer = null;
+                func.apply(context, args)
+            }, wait)
+        }
     }
-    if (timer) {
-      return false
-    }
-    timer = setTimeout(() => {
-      clearTimeout(timer)
-      timer = null
-      fn.apply(self, args)
-    }, interval)
-  }
 }
-// 运用
-window.onresize = throttle(function() {
-  console.log('window onresize');
-}, 500)
+
+// 时间戳版
+function throttle(func, wait) {
+    // 时间戳版
+    let previous = 0;
+    return function (...args) {
+        let now = Date.now();
+        if (now - previous >= wait) {
+            previous = now;
+            func.apply(this, args)
+        }
+    }
+}
 ```
 
-### 手写函数防抖
+### 函数防抖
 ::: tip
-函数防抖：函数防抖的核心思路是利用`setTimeout`延迟执行某个方法，只有在指定的事件后才执行，中间触发的事件不执行。最常见的函数防抖就是，搜索框只有用户在输入完毕后才去服务器执行查询。
+函数防抖：触发事件后在 n 秒内函数只能执行一次，如果在 n 秒内又触发了事件，则会重新计算函数执行时间。
 :::
 ```js
-function debounce(fn, delay) {
-  var timer = null;
-  return function () {
-    var context = this;
-    if(timer) {
-      clearTimeout(timer);
-    }
-    timer = setTimeout(() => {
-      fn.call(context, ...arguments);
-    }, delay || 500);
-  }
+// 非立即执行版
+function debounce(func, delay) {
+	let timer = null;
+	return function (...args) {
+		const context = this;
+		if (timer !== null) clearTimeout(timer);
+		timer = setTimeout(() => {
+      timer = null;
+			func.apply(context, args);
+		}, delay);
+	};
 }
-window.onresize = debounce(function() {
-  console.log('window onresize end');
-}, 500)
+
+// 立即执行版
+function debounce(func, delay) {
+    let timer = null;
+    return function (...arg) {
+        const context = this;
+        if (timer !== null) clearTimeout(timer);
+        const callNow = !timer;
+        timer = setTimeout(() => {
+            timer = null;
+        }, delay)
+        if (callNow) func.apply(context, arg);
+    }
+}
+
+// 双剑合璧版
+/**
+ * @desc 函数防抖
+ * @param {Function} func 函数
+ * @param {Number} wait 延迟执行毫秒数
+ * @param {Boolean} immediate true 表立即执行，false 表非立即执行
+ */
+function debounce(func, wait, immediate) {
+	let timer = null;
+	return immediate
+		? function (...arg) {
+        const context = this;
+        if (timer !== null) clearTimeout(timer);
+        const callNow = !timer;
+        timer = setTimeout(() => {
+            timer = null;
+        }, delay)
+        if (callNow) func.apply(context, arg);
+      }
+		: function (...arg) {
+				const context = this;
+				if (timer !== null) clearTimeout(timer);
+				timer = setTimeout(() => {
+          timer = null;
+					func.apply(context, arg);
+				}, wait);
+		  };
+}
 ```
 
-### 手写 instanceof
+## 手写 instanceof
 ::: tip
-`instanceof`原理是在对象原型链中是否能找到执行类型的`prototype`
+`instanceof` 原理是在对象原型链中是否能找到执行类型的 `prototype`
 :::
 ```js
 function myInstanceOf (left, right) {
-  if (typeof left !== 'object') {
-    return false
-  }
+  if (typeof left !== 'object') return false;
   while(true) {
-    if (left === null) {
-      return false
-    }
-    if (left.__proto__ === right.prototype) {
-      return true
-    }
-    left = left.__proto__
+    if (left === null) return false;
+    if (left.__proto__ === right.prototype) return true;
+    left = left.__proto__;
   }
 }
-function Person (name) {
-  this.name = name
-}
-const p1 = new Person('AAA')
-console.log(myInstanceOf(p1, Person)) // true
-console.log(myInstanceOf(p1, Object)) // true
-console.log(p1 instanceof Person)     // true
-console.log(p1 instanceof Object)     // true
 ```
 
-### 深拷贝
+## 深拷贝
 ::: tip
 通过递归实现深拷贝。  
 `WeakMap` 弱引用优化循环引用。  
