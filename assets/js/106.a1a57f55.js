@@ -1,1 +1,0 @@
-(window.webpackJsonp=window.webpackJsonp||[]).push([[106],{354:function(s,n,p){s.exports=p.p+"assets/img/travissetting.889c85ed.png"}}]);

@@ -1,1 +1,0 @@
-(window.webpackJsonp=window.webpackJsonp||[]).push([[241],{300:function(e,p,s){e.exports=s.p+"assets/img/usedLifecycle.2ae390c5.png"}}]);

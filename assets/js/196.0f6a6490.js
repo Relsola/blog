@@ -1,1 +1,0 @@
-(window.webpackJsonp=window.webpackJsonp||[]).push([[196],{442:function(p,s,n){p.exports=n.p+"assets/img/eggbase.ff6995b4.png"}}]);

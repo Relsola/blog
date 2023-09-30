@@ -1,1 +1,0 @@
-(window.webpackJsonp=window.webpackJsonp||[]).push([[99],{347:function(p,n,s){p.exports=s.p+"assets/img/rewrite2.f87b0898.png"}}]);

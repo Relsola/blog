@@ -1,1 +1,0 @@
-(window.webpackJsonp=window.webpackJsonp||[]).push([[215],{287:function(p,n,s){p.exports=s.p+"assets/img/writeMiddle.fb581c4f.png"}}]);

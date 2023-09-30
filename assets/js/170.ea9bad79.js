@@ -1,1 +1,0 @@
-(window.webpackJsonp=window.webpackJsonp||[]).push([[170],{419:function(n,p,i){n.exports=i.p+"assets/img/proclaimedinwriting.b89fd551.png"}}]);

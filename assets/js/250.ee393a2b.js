@@ -1,1 +1,0 @@
-(window.webpackJsonp=window.webpackJsonp||[]).push([[250],{267:function(n,p,s){n.exports=s.p+"assets/img/nextTick1.2b1bb6f3.png"}}]);

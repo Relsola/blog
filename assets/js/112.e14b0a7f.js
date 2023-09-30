@@ -1,1 +1,0 @@
-(window.webpackJsonp=window.webpackJsonp||[]).push([[112],{360:function(p,n,o){p.exports=o.p+"assets/img/floyd3.8c46839e.png"}}]);

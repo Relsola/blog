@@ -1,0 +1,1 @@
+(window.webpackJsonp=window.webpackJsonp||[]).push([[57],{267:function(n,p,s){n.exports=s.p+"assets/img/tailwindCSSReact.f54ad023.png"}}]);

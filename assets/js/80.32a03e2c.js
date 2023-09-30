@@ -1,1 +1,0 @@
-(window.webpackJsonp=window.webpackJsonp||[]).push([[80],{335:function(p,n,o){p.exports=o.p+"assets/img/poll.3942d235.png"}}]);
