@@ -13,7 +13,39 @@ function getQueryString(name){
 }
 ```
 
-## 手写setInterval
+## 实现 EventEmitter 发布订阅模式
+```js
+class EventEmitter {
+  constructor() {
+    this.events = {}; // 用一个对象来保存事件和订阅者
+  }
+
+  // 添加事件
+  on(event, listener) {
+    if (!this.events[event]) {
+      this.events[event] = [];
+    }
+    this.events[event].push(listener);
+  }
+
+  // 触发事件
+  emit(event, ...args) {
+    const listeners = this.events[event] || [];
+    listeners.forEach((listener) => listener(...args));
+  }
+
+  // 移除事件
+  off(event, listener) {
+    const listeners = this.events[event] || [];
+    const index = listeners.indexOf(listener);
+    if (index >= 0) {
+      listeners.splice(index, 1);
+    }
+  }
+}
+```
+
+## 手写 setInterval
 ::: tip
 用`requestAnimationFrame`实现自己的`setInterval`方法
 :::
@@ -250,7 +282,7 @@ function throttle(func, wait) {
         if (timer === null) {
             timer = setTimeout(() => {
                 timer = null;
-                func.apply(context, args)
+                func.apply(context, args);
             }, wait)
         }
     }
@@ -264,7 +296,7 @@ function throttle(func, wait) {
         let now = Date.now();
         if (now - previous >= wait) {
             previous = now;
-            func.apply(this, args)
+            func.apply(this, args);
         }
     }
 }
@@ -318,7 +350,7 @@ function debounce(func, wait, immediate) {
         const callNow = !timer;
         timer = setTimeout(() => {
             timer = null;
-        }, delay)
+        }, wait)
         if (callNow) func.apply(context, arg);
       }
 		: function (...arg) {
@@ -1176,85 +1208,6 @@ event.emit('listen')  //
 event.off()
 event.emit('speak')   // 
 event.emit('running') //
-```
-
-### 手写Vue 数据响应式原理
-
-#### Object.defineProperty方案
-```js
-function observe (obj) {
-  if (typeof obj !== 'object' || obj === null) {
-    return
-  }
-  Object.keys(obj).forEach(key => {
-    defineReactive(obj, key, obj[key])
-  })
-}
-function defineReactive (target, key, val) {
-  observe(val)
-  Object.defineProperty(target, key, {
-    enumerable: true,
-    configurable: true,
-    get: function () {
-      console.log('get value')
-      return val
-    },
-    set: function (newVal) {
-      val = newVal
-      console.log('change value')
-    }
-  })
-}
-const obj = {
-  name: 'AAA',
-  age: 23,
-  job: {
-    name: 'FE',
-    salary: 1000
-  }
-}
-observe(obj)
-const name = obj.name
-obj.name = 'BBB'
-const jobName = obj.job.name
-obj.job.name = 'fe'
-```
-
-#### Proxy方案
-```js
-function observe (obj) {
-  if (typeof obj !== 'object' || obj === null) {
-    return
-  }
-  const handler = {
-    get: function (target, key) {
-      const val = target[key]
-      if (typeof val === 'object' && val !== null) {
-        return new Proxy(val, handler)
-      }
-      console.log('get value')
-      return Reflect.get(target, key)
-    },
-    set: function (target, key, val) {
-      console.log('change value')
-      return Reflect.set(target, key, val)
-    }
-  }
-  return new Proxy(obj, handler)
-}
-const obj = {
-  name: 'AAA',
-  age: 23,
-  job: {
-    name: 'FE',
-    salary: 1000
-  }
-}
-const proxyObj = observe(obj)
-const name = proxyObj.name
-proxyObj.name = 'BBB'
-const jobName = proxyObj.job.name
-proxyObj.job.name = 'fe'
 ```
 
 

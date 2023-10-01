@@ -28,10 +28,6 @@ module.exports = {
 					{
 						text: "JavaScript设计模式",
 						link: "/JavaScript/designPattern"
-					},
-					{
-						text: "数据结构与算法",
-						link: "/JavaScript/algorithm"
 					}
 				]
 			},
@@ -58,14 +54,7 @@ module.exports = {
 				text: "React",
 				items: [
 					{ text: "React基础", link: "/react/base" },
-					{ text: "React进阶", link: "/react/advanced" },
 					{ text: "React生态", link: "/react/ecology" },
-					{ text: "React原理", link: "/react/principle" },
-					{
-						text: "React状态管理",
-						link: "/react/stateMana"
-					},
-					{ text: "ReactHooks", link: "/react/hooks" },
 					{ text: "React源码", link: "/react/sourceCode" }
 				]
 			},
@@ -75,9 +64,7 @@ module.exports = {
 				items: [
 					{ text: "Webpack", link: "/project/webpack" },
 					{ text: "Vite", link: "/project/vite" },
-					{ text: "Docker", link: "/project/docker" },
-					{ text: "Rollup", link: "/project/rollup" },
-					{ text: "Git操作", link: "/project/git" }
+					{ text: "Rollup", link: "/project/rollup" }
 				]
 			},
 
@@ -94,14 +81,6 @@ module.exports = {
 					}
 				]
 			},
-
-			{
-				text: "计算机网络",
-				items: [
-					{ text: "计算机网络", link: "/network/protocal" },
-					{ text: "浏览器原理", link: "/network/browser" }
-				]
-			},
 			{
 				text: "CSS预编译器",
 				items: [
@@ -111,6 +90,13 @@ module.exports = {
 					},
 					{ text: "Less", link: "/cssPrecompile/less" },
 					{ text: "Sass", link: "/cssPrecompile/sass" }
+				]
+			},
+			{
+				text: "其他",
+				items: [
+					{ text: "Git操作", link: "/other/git" },
+					{ text: "浏览器&网络", link: "/other/browser" }
 				]
 			}
 		]

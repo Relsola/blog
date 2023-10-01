@@ -80,10 +80,9 @@ function initData(vm) {
 	data = vm._data =
 		typeof data === "function" ? data.call(vm) : data || {};
 
-	// 把data数据代理到vm 也就是Vue实例上面 我们可以使用this.a来访问this._data.a
-	for (let key in data) {
-		proxy(vm, `_data`, key);
-	}
+	// 将 data 数据代理到 Vue 实例上
+	for (const key in data) proxy(vm, `_data`, key);
+
 	// 数据劫持 --响应式数据核心
 	observe(data);
 }
@@ -239,7 +238,7 @@ methodsToPatch.forEach((method) => {
   
 2. `optimize`： 优化 `AST` 语法树，标记静态节点
    
-3. `codegenChildren`： 把优化后的 `AST` 语法树转换生成 `render` 方法代码字符串，利用模板引擎生成可执行的 `render` 函数（`render` 执行后返回的结果就是虚拟DOM，即以 `VNode` 节点作为基础的树）
+3. `codegen`： 把优化后的 `AST` 语法树转换生成 `render` 方法代码字符串，利用模板引擎生成可执行的 `render` 函数（`render` 执行后返回的结果就是虚拟DOM，即以 `VNode` 节点作为基础的树）
    
 ### 1.入口
 ```js
@@ -276,13 +275,13 @@ function initMixin(Vue) {
 function compileToFunctions(template) {
   // 1.解析模版template生成 AST语法树
   // ast用来描述代码本身形成树结构 不仅可以描述html 也能描述css以及js语法
-  const ast = parseHTML(template);
+  const ast = parse(template);
 
   // 2.优化AST语法树，标记静态节点
   optimize(ast)
 
   // 3.把优化后的 AST语法树转换生成render方法代码字符串，利用模板引擎生成可执行的 
-  const code = codegenChildren(ast);
+  const code = codegen(ast);
   // 使用with语法改变作用域为this  之后调用render函数可以使用call改变this 方便code里面的变量取值
   const render = new Function(`with(this){return ${code}}`);
   return render;
@@ -342,9 +341,9 @@ function start({ tagName, attrs }) {
   // 建立parent和children关系
   if (currentParent !== null) {
     // 只赋予了parent属性
-    node.parent = currentParent;
+    element.parent = currentParent;
     // 还需要让父亲记住自己
-    currentParent.children.push(node);
+    currentParent.children.push(element);
   }
   currentParent = element;
   stack.push(element);
@@ -353,7 +352,7 @@ function start({ tagName, attrs }) {
 // 对结束标签进行处理
 function end(tagName) {
   // 栈结构 当遇到第一个结束标签时 会匹配到栈顶元素对应的ast 并取出来
-  const element = stack.pop();
+  stack.pop();
   // 当前父元素就是栈顶的上一个元素
   currentParent = stack.at(-1);
 }
@@ -375,7 +374,7 @@ function chars(text) {
 
 使用 `while` 循环 `html` 字符串，利用正则去匹配开始标签、文本内容和闭合标签，然后执行 `advance` 方法将匹配到的内容在原 `html` 字符串中剔除，直到 `html` 字符串为空，结束循环：
 ```js
-function parseHTML(html) {
+function parse(html) {
   while (html) {
     // 查找 <
     const textEnd = html.indexOf("<");
@@ -490,7 +489,7 @@ function genChildren(node) {
   // 如果是元素类型
   if (node.type == 1) {
     // 递归创建
-    return codegenChildren(node);
+    return codegen(node);
   } else {
     // 如果是文本节点
     const text = node.text;
@@ -552,7 +551,7 @@ function getChildren(el) {
 }
 
 // 递归创建生成code
-function codegenChildren(el) {
+function codegen(el) {
   const children = getChildren(el);
   const code = `_c('${el.tag}',${
     el.attrs.length ? `${genChildrenProps(el.attrs)}` : "undefined"
@@ -563,7 +562,7 @@ function codegenChildren(el) {
 
 #### 6.code 字符串生成 render 函数
 ```js
-const code = codegenChildren(ast);
+const code = codegen(ast);
 // 使用with语法改变作用域为this  之后调用render函数可以使用call改变this 方便code里面的变量取值 比如 name值就变成了this.name
 const render = new Function(`with(this){return ${code}}`);
 return render;
