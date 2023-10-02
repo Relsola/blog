@@ -2083,9 +2083,6 @@ startUpload('flash', [
   { name: '6.txt', size: 5000 }
 ])
 ```
-#### 真实案例：文件上传结果
-
-![真实案例：文件上传结果](../images/books/fileUploadResult.png)
 
 #### 真实案例：亨元模式重构文件上传
 ::: tip 如何划分内部状态和外部状态
@@ -2175,9 +2172,6 @@ startUpload('flash', [
   { name: '6.txt', size: 5000 }
 ])
 ```
-#### 真实案例：亨元模式重构文件上传
-
-![亨元模式重构文件上传结果](../images/books/fileUploadResult.png)
 
 ### 职责链模式
 ::: tip 定义

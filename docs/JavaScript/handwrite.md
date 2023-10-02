@@ -45,7 +45,7 @@ class EventEmitter {
 }
 ```
 
-## 手写 setInterval
+## 实现 setInterval
 ::: tip
 用`requestAnimationFrame`实现自己的`setInterval`方法
 :::
@@ -127,6 +127,49 @@ Function.prototype.myBind = function (context, ...arg) {
     emptyFn.prototype = this.prototype;
     Bound.prototype = new emptyFn();
     return Bound;
+}
+```
+
+## 手写 new 操作符
+::: tip new 操作符调用构造函数的过程
+1. 创建一个空对象
+2. 将空对象的`__proto__`指向构造函数的`prototype`
+3. 将这个空对象赋值给构造函数内部的`this`，并执行构造函数
+4. 根据构造函数的逻辑，返回第一步创建的对象或者构造函数显示的返回值
+:::
+```js
+function myNew(constructor, ...arg) {
+    // 改变obj原型指向
+    const obj = Object.create(constructor.prototype);
+    // 将obj作为上下文this指向
+    const result = constructor.apply(obj, arg);
+    // 正确输出结果
+    return result !== null && typeof result === "object" ? result : obj;
+}
+```
+
+## 手写 AJAX
+::: tip 原生ajax步骤
+1. 创建`XMLHttpRequest`对象
+2. 设置`readyState`监听事件
+2. 使用`open`方法设置和服务器的交互信息
+3. 使用`send`发送数据
+:::
+```JS
+// 使用Promise封装AJAX
+function ajax(methods, url, data) {
+	const xhr = new XMLHttpRequest();
+	return new Promise((resolve, reject) => {
+		xhr.onreadystatechange = function () {
+			if (xhr.readyState !== 4) return;
+			if (xhr.status === 200) resolve(xhr.responseText);
+			else reject(xhr.statusText);
+		};
+    if(methods === 'post') 
+      xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+		xhr.open(methods, url);
+		xhr.send(data);
+	});
 }
 ```
 
@@ -538,38 +581,6 @@ function loadNode(len) {
 loadNode();
 ```
 
-### 手写原生Ajax请求
-::: tip 原生ajax步骤
-1. 创建`XMLHttpRequest`对象
-2. 使用`open`方法设置和服务器的交互信息
-3. 使用`send`发送数据
-4. 注册事件
-:::
-
-#### get请求
-```js
-var xhr = new XMLHttpRequest();
-xhr.open('get','https://www.baidu.com/getUserInfo?name=AAA&age=18');
-xhr.send();
-xhr.onreadystatechange = function() {
-  if(xhr.readyState ==4 && xhr.status==200) {
-    console.log('请求成功');
-  }
-}
-```
-#### post请求
-```js
-var xhr = new XMLHttpRequest();
-xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-xhr.open('post','https://www.baidu.com/getUserInfo');
-xhr.send('name=AAA&age=18');
-xhr.onreadystatechange = function() {
-  if(xhr.readyState ==4 && xhr.status==200) {
-    console.log('请求成功');
-  }
-}
-```
-
 ### 手写函数AOP
 ::: tip
 AOP(面向切面编程)的主要作用是把一些跟核心业务逻辑模块无关的功能抽离出来，这些跟业务逻辑无关的功能通常包括日志统计，安全控制，异常处理等。把这些功能抽离出来后，再通过动态织入的方式掺入业务逻辑模块中
@@ -709,23 +720,6 @@ const params = {
 JSONP('https://www.runoob.com/try/ajax/jsonp.php', params, function (data) {
   console.log(data)
 })
-```
-
-### 手写 new
-`new`操作符调用构造函数的过程如下：
-1. 创建一个空对象
-2. 将空对象的`__proto__`指向构造函数的`prototype`
-3. 将这个空对象赋值给构造函数内部的`this`，并执行构造函数
-4. 根据构造函数的逻辑，返回第一步创建的对象或者构造函数显示的返回值
-```js
-function myNew(constructor, ...arg) {
-    // 改变obj原型指向
-    const obj = Object.create(constructor.prototype);
-    // 将obj作为上下文this指向
-    const result = constructor.apply(obj, arg);
-    // 正确输出结果
-    return result !== null && typeof result === "object" ? result : obj;
-}
 ```
 
 ### 手写 extends

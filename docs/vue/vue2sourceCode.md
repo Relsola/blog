@@ -576,8 +576,12 @@ return render;
 
 ## diff算法
 
+## Mixin混入
 
+## 组件原理
+
+## 侦听属性
 
 ## 计算属性
 
-## 侦听属性
+## mini-vue
