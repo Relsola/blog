@@ -38,7 +38,7 @@ module.exports = {
 					{ text: "Vue2基础", link: "/vue/vue2base" },
 					{ text: "Vue3基础", link: "/vue/vue3base" },
 					{ text: "Vue核心插件", link: "/vue/libraries" },
-					{ text: "Vue测试", link: "/vue/vueTest" },
+					// { text: "Vue测试", link: "/vue/vueTest" },
 					{
 						text: "Vue2源码解读",
 						link: "/vue/vue2sourceCode"
