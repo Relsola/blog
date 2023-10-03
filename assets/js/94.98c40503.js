@@ -1,1 +1,0 @@
-(window.webpackJsonp=window.webpackJsonp||[]).push([[94],{326:function(s,e,p){s.exports=p.p+"assets/img/certificatesystem.ac14e9a1.png"}}]);
