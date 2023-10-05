@@ -1,19 +1,46 @@
 # 手写系列
 
-## 获取地址栏参数值
+## 手写LRU缓存
 ::: tip
-webAPI `window.location.search` 获取搜索字符串。
+在有限的缓存资源中，淘汰掉最近最久未使用的资源。
 :::
 ```js
-function getQueryString(name){
-    const str =  window.location.search.substring(1);
-    const reg = new RegExp(`(?:^|&)${name}=([^&]+)(?:$|&)`)
-    const result = str.match(reg);
-    return result === null ? null : result[1];
+class LRUCache {
+	constructor(capacity) {
+		this.capacity = capacity;
+		this.cache = new Map();
+	}
+
+	get(key) {
+		if (!this.cache.has(key)) {
+			return -1;
+		}
+		const value = this.cache.get(key);
+		this.cache.delete(key);
+		this.cache.set(key, value);
+		return value;
+	}
+
+	put(key, value) {
+		if (this.cache.has(key)) {
+			this.cache.delete(key);
+		} else if (this.cache.size >= this.capacity) {
+			const firstKey = this.cache.keys().next().value;
+			this.cache.delete(firstKey);
+		}
+		this.cache.set(key, value);
+	}
 }
 ```
 
 ## 实现 EventEmitter 发布订阅模式
+::: tip EventEmitter包含三个核心方法：
+1. on(event, listener)：用于添加事件和订阅者。接收两个参数，event表示事件名称，listener表示订阅者的回调函数。
+
+2. emit(event, ...args)：用于触发事件。接收一个事件名称和任意数量的参数。当事件被触发时，所有订阅该事件的回调函数将被调用，并将参数传递给它们。
+
+3. off(event, listener)：用于移除事件和订阅者。接收两个参数，event表示事件名称，listener表示要移除的订阅者的回调函数。
+:::
 ```js
 class EventEmitter {
   constructor() {
@@ -43,43 +70,6 @@ class EventEmitter {
     }
   }
 }
-```
-
-## 实现 setInterval
-::: tip
-用`requestAnimationFrame`实现自己的`setInterval`方法
-:::
-```js
-const obj = {
-  timer: null,
-  setInterval: function (callback, interval) {
-    const now = Date.now
-    let startTime = now()
-    let endTime = startTime
-    const self = this
-    const loop = function () {
-      self.timer = requestAnimationFrame(loop)
-      endTime = now()
-      if (endTime - startTime >= interval) {
-        startTime = endTime = now()
-        callback && callback()
-      }
-    }
-    this.timer = requestAnimationFrame(loop)
-    return this.timer
-  },
-  clearInterval: function () {
-    cancelAnimationFrame(this.timer)
-  }
-}
-let count = 0
-const timer = obj.setInterval(() => {
-  console.log('interval...')
-  count++
-  if (count >= 3) {
-    obj.clearInterval()
-  } 
-}, 500)
 ```
 
 ## 手写 call apply bind
@@ -422,7 +412,36 @@ function myInstanceOf (left, right) {
 }
 ```
 
-## 深拷贝
+## 实现 setInterval
+::: tip
+用`requestAnimationFrame`实现`setInterval`方法
+:::
+```js
+const obj = {
+  timer: null,
+  setInterval: function (callback, interval) {
+    const now = Date.now
+    let startTime = now()
+    let endTime = startTime
+    const self = this
+    const loop = function () {
+      self.timer = requestAnimationFrame(loop)
+      endTime = now()
+      if (endTime - startTime >= interval) {
+        startTime = endTime = now()
+        callback && callback()
+      }
+    }
+    this.timer = requestAnimationFrame(loop)
+    return this.timer
+  },
+  clearInterval: function () {
+    cancelAnimationFrame(this.timer)
+  }
+}
+```
+
+## 实现深拷贝
 ::: tip
 通过递归实现深拷贝。  
 `WeakMap` 弱引用优化循环引用。  
@@ -468,830 +487,144 @@ const data = {
 console.log(deepClone(data));
 ```
 
-### 手写对象属性值迭代器
-::: tip
-自定义对象属性值迭代器，使之能使用`for of`循环遍历对象属性的值
-:::
+## 手写数组方法
+
+### flat
 ```js
-var obj = {
-  name: 'AAA',
-  age: 23,
-  address: '广州'
-}
-Object.defineProperty(obj, Symbol.iterator, {
-  writable: false,
-  enumerable: false,
-  configurable: true,
-  value: function() {
-    var self = this;
-    var index = 0;
-    var keys = Object.keys(self);
-    return {
-      next: function() {
-        return {
-          done: index >= keys.length,
-          value: self[keys[index++]]
-        }
-      }
-    }
-  }
-})
-for (const val of obj) {
-  console.log(`属性值为：${val}`);
+function flat(arr = [], depth = 1) {
+	if (arr.length === 0 || depth < 1) return arr;
+	return arr.reduce(
+		(pre, cur) =>
+			pre.concat(Array.isArray(cur) ? flat(cur, --depth) : cur),
+		[]
+	);
 }
 ```
 
-### 手写图片懒加载
-::: tip
-图片懒加载是一种常用的技术，如果直接给某个img标签设置src属性，由于图片过大或者网络不佳，图片的位置会出现一片空白，图片懒加载就是使用一个`loading`图片来进行站位，等真正的图片加载完毕后再显示出来。
-:::
-
-#### 不使用代理模式实现图片懒加载
+### map
 ```js
-const loadingSrc = 'https://www.imooc.com/static/img/index/logo2020.png'
-const imgSrc = 'https://img1.sycdn.imooc.com/5c09123400014ba418720632.jpg'
-const myImage = (function () {
-  const imgNode = document.createElement('img')
-  document.body.appendChild(imgNode)
-  const img = new Image()
-  img.onload = function () {
-    imgNode.src = img.src
-  }
-  return {
-    setSrc: function (src) {
-      imgNode.src = loadingSrc
-      img.src = src
-    }
-  }
-})()
-myImage.setSrc(imgSrc)
-```
-
-#### 使用代理模式实现图片懒加载
-```js
-const loadingSrc = 'https://www.imooc.com/static/img/index/logo2020.png'
-const imgSrc = 'https://img1.sycdn.imooc.com/5c09123400014ba418720632.jpg'
-const myImage = (function(){
-  const imgNode = document.createElement('img')
-  document.body.appendChild(imgNode)
-  return {
-    setSrc: function (src) {
-      imgNode.src = src
-    }
-  }
-})()
-const proxyImage = (function(){
-  const img = new Image()
-  img.onload = function () {
-    myImage.setSrc(img.src)
-  }
-  return {
-    setSrc: function (src) {
-      myImage.setSrc(loadingSrc)
-      img.src = src
-    }
-  }
-})()
-proxyImage.setSrc(imgSrc)
-```
-
-### 手写事件委托
-::: tip 题目
-循环创建10个li标签，当点击li标签时，打印其对应的索引
-:::
-```html
-<ul id="list"></ul>
-```
-```js
-function loadNode(len) {
-  var html = '';
-  for (let index = 0; index < 10; index++) {
-    html += '<li>'+index+'</li>';
-  }
-  var list = document.getElementById('list');
-  list.onclick = function(event) {
-    event = event || window.event;
-    var target = event.target || event.srcElement;
-    if(target.nodeName.toLowerCase() === 'li') {
-      console.log(target.innerText);
-    }
-  }
-  list.innerHTML = html;
-}
-loadNode();
-```
-
-### 手写函数AOP
-::: tip
-AOP(面向切面编程)的主要作用是把一些跟核心业务逻辑模块无关的功能抽离出来，这些跟业务逻辑无关的功能通常包括日志统计，安全控制，异常处理等。把这些功能抽离出来后，再通过动态织入的方式掺入业务逻辑模块中
-:::
-```js
-Function.prototype.before = function (beforeFn) {
-  const self = this
-  return function beforeFunc () {
-    const args = arguments
-    beforeFn.apply(this, args)
-    return self.apply(this, args)
-  }
-}
-Function.prototype.after = function (afterFn) {
-  const self = this
-  return function afterFunc () {
-    const args = arguments
-    const result = self.apply(this, args)
-    afterFn.apply(this, args)
-    return result
-  }
-}
-function func () {
-  console.log('2')
-}
-const newFunc = func.before(() => {
-  console.log('1')
-}).after(() => {
-  console.log('3')
-})
-newFunc() // 1 2 3
-```
-
-### 手写柯里化
-**柯里化**：又称部分求值，一个柯里化参数首先会接受一些参数，接受这些参数之后，该函数并不会立即求值，而是继续返回另外一个函数，刚才传入的参数在函数形成的闭包中被保存起来，待到合适的时机一起求值。<br>
-```js
-// 通用的柯里化
-var currying = function(fn) {
-  var args = [];
-  return function() {
-    if(arguments.length==0) {
-      return fn.apply(this,args);
-    } else {
-      Array.prototype.push.apply(args,arguments);
-      return arguments.callee;
-    }
-  }
-}
-
-var cost = (function(){
-  var money = 0;
-  return function() {
-    for(var i = 0,len = arguments.length;i<len;i++) {
-      money +=arguments[i];
-    }
-    return money;
-  }
-})()
-var cost = currying(cost);
-cost(100);
-cost(200);
-cost(20);
-cost(10);
-console.log(cost()); // 输出330
-```
-
-### 手写分时函数
-::: tip
-分时函数案例：把1秒创建1000个DOM节点，改成每隔200毫秒创建10个节点，这样不用短时间在页面中创建大量的DOM。
-:::
-```js
-var timeChunk = function(arr,fn,count,interval) {
-  var timer = null;
-  var data = null;
-  var start = function() {
-    for(var i = 0 ; i < Math.min(count || 1 , arr.length) ; i++) {
-      fn(arr.shift());
-    }
-  }
-  return function() {
-    timer = setInterval(function(){
-      if(arr.length == 0) {
-        clearInterval(timer);
-        timer = null;
-        return;
-      }
-      start();
-    }, interval || 200)
-  }
-}
-
-var arr = [];
-for(var i = 0 ; i < 1000 ; i++) {
-  arr.push(i);
-}
-
-var renderDOMList = timeChunk(arr, function(data) {
-  var div = document.createElement('div');
-  div.innerHTML = data;
-  document.body.appendChild(div);
-},10,200);
-renderDOMList();
-```
-
-
-### 手写JSONP
-::: tip 原理
-JSONP实现跨域的原理是利用`script`标签没有跨域限制，通过`src`指向一个`ajax`的URL，最后跟一个回调函数`callback`
-:::
-```js
-function JSONP (url, data, callback) {
-  const cbName = 'callback_' + new Date().getTime()
-  const queryString = normalizeParams(data)
-  const hasIndex = url.indexOf('?') !== -1
-  url = `${hasIndex ? url : url + '?'}${queryString}&jsoncallback=${cbName}`
-  const script = document.createElement('script')
-  script.src = url
-  window[cbName] = function (data) {
-    callback(data)
-    document.body.removeChild(script)
-  }
-  document.body.appendChild(script)
-}
-function normalizeParams (data) {
-  if (!data || Object.keys(data).length === 0) {
-    return ''
-  }
-  return Object.keys(data).map((key, index) => {
-    return `${index ? '&' : ''}${key}=${data[key]}`
-  })
-}
-const params = {
-  name: 'AAA',
-  age: 23,
-  address: '广东'
-}
-JSONP('https://www.runoob.com/try/ajax/jsonp.php', params, function (data) {
-  console.log(data)
-})
-```
-
-### 手写 extends
-```js
-function inherit (child, parent) {
-  // 1.继承父类原型上的属性
-  child.prototype = Object.create(parent.prototype)
-  // 2.修复子类的构造函数
-  child.prototype.constructor = child
-  // 3.存储父类
-  child.super = parent
-  // 4.继承静态属性
-  if (Object.setPrototypeOf) {
-    Object.setPrototypeOf(child, parent)
-  } else if (child.__proto__) {
-    child.__proto__ = parent
-  } else {
-    for (const key in parent) {
-      if (parent.hasOwnProperty(k) && !(k in child)) {
-        child[key] = parent[key]
-      }
-    }
-  }
-}
-// 父类
-function Parent (name) {
-  this.name = name
-  this.parentColors = ['red']
-}
-Parent.prototype.sayName = function () {
-  console.log(this.name)
-}
-Parent.create = function (name) {
-  return new Parent(name)
-}
-// 子类
-function Child (name) {
-  this.name = name
-  this.childColors = ['green']
-}
-// 继承
-inherit(Child, Parent)
-
-// test
-const child1 = new Child('child1')
-console.log(child1 instanceof Child)  // true
-console.log(child1 instanceof Parent) // true
-console.log(child1.name)              // child1
-console.log(child1.childColors)       // ['green']
-console.log(child1.parentColors)      // undefined
-
-const child2 = Child.create('child2')
-console.log(child2 instanceof Child)  // false
-console.log(child2 instanceof Parent) // true
-console.log(child2.name)              // child2
-console.log(child2.childColors)       // undefined
-console.log(child2.parentColors)      // ['red']
-```
-
-### 手写Object.create方法
-```js
-function create (obj, properties) {
-  const strType = typeof obj
-  const isObject = strType === 'object' || strType === 'function'
-  const isUndefined = strType === 'undefined'
-  if (isUndefined || !isObject) {
-    throw new TypeError('Object prototype may only be an Object or null')
-  }
-  // 设置原型
-  function F () {}
-  F.prototype = obj
-  const ret = new F()
-  // 兼容第二个参数
-  if (properties !== null && properties !== undefined) {
-    Object.defineProperties(ret, properties)
-  }
-  // 兼容null
-  if (obj === null) {
-    ret.__proto__ = null
-  }
-  return ret
-}
-const obj = {
-  age: 23,
-  name: 'AAA'
-}
-const myObj1 = create(obj, {
-  address: {
-    value: '广东'
-  }
-})
-const originObj1 = Object.create(obj, {
-  address: {
-    value: '广东'
-  }
-})
-console.log(myObj1.name)        // 23
-console.log(myObj1.address)     // 广东
-console.log(originObj1.name)    // 23
-console.log(originObj1.address) // 广东
-
-const myObj2 = create(null)
-const originObj2 = Object.create(null)
-console.log('toString' in myObj2)     // false
-console.log('toString' in originObj2) // false
-```
-
-### 手写数组降维flat方法
-原生`Array.prototype.flat`方法接受一个`depth`参数，默认值为`1`，`depth`表示要降维的维数：
-```js
-const arr = [1, [2, 3], [4, [5, 6]]]
-console.log(arr.flat(1))         // [1, 2, 3, 4, [5, 6]]
-console.log(arr.flat(Infinity))  // [1, 2, 3, 4, 5, 6]
-```
-
-#### reduce + 递归实现方案
-```js
-// MDN: 可查看更多flat实现方法
-function flat (arr = [], depth = 1) {
-  if (arr.length === 0) {
-    return []
-  }
-  let result = []
-  if (depth > 0) {
-    result = arr.reduce((acc, val) => {
-      return acc.concat(Array.isArray(val) ? flat(val, depth - 1) : val)
-    }, [])
-  } else {
-    result = arr.slice()
-  }
-  return result
-}
-const arr = [1, 2, 3, [1, 2, 3, 4, [2, 3, 4]]]
-const myResult1 = flat(arr, 1)
-const originResult1 = arr.flat(1)
-const myResult2 = flat(arr, Infinity)
-const originResult2 = arr.flat(Infinity)
-console.log(myResult1)      // [1, 2, 3, 1, 2, 3, 4, [2, 3, 4]]
-console.log(originResult1)  // [1, 2, 3, 1, 2, 3, 4, [2, 3, 4]]
-console.log(myResult2 )     // [1, 2, 3, 1, 2, 3, 4, 2, 3, 4]
-console.log(originResult2 ) // [1, 2, 3, 1, 2, 3, 4, 2, 3, 4]
-```
-
-#### forEach + 递归实现方案
-```js
-// MDN: 可查看更多flat实现方法
-function flat (arr = [], depth = 1) {
-  if (arr.length === 0) {
-    return []
-  }
-  const result = [];
-  // 注意：立即执行函书前的语句必须要有分号
-  (function flatFunc(arr, depth) {
-    arr.forEach(item => {
-      if (Array.isArray(item) && depth > 0) {
-        flatFunc(item, depth - 1)
-      } else {
-        result.push(item)
-      }
-    })
-  })(arr, depth)
-  return result
-}
-const arr = [1, 2, 3, [1, 2, 3, 4, [2, 3, 4]]]
-const myResult1 = flat(arr, 1)
-const originResult1 = arr.flat(1)
-const myResult2 = flat(arr, Infinity)
-const originResult2 = arr.flat(Infinity)
-console.log(myResult1)      // [1, 2, 3, 1, 2, 3, 4, [2, 3, 4]]
-console.log(originResult1)  // [1, 2, 3, 1, 2, 3, 4, [2, 3, 4]]
-console.log(myResult2 )     // [1, 2, 3, 1, 2, 3, 4, 2, 3, 4]
-console.log(originResult2 ) // [1, 2, 3, 1, 2, 3, 4, 2, 3, 4]
-```
-
-#### generator方案
-```js
-// MDN: 可查看更多flat实现方法
-function * flat (arr = [], depth = 1) {
-  if (arr.length === 0) {
-    return []
-  }
-  for (const item of arr) {
-    if (Array.isArray(item) && depth > 0) {
-      yield * flat(item, depth - 1)
-    } else {
-      yield item
-    }
-  }
-}
-const arr = [1, 2, 3, [1, 2, 3, 4, [2, 3, 4]]]
-const myResult1 = [...flat(arr, 1)]
-const originResult1 = arr.flat(1)
-const myResult2 = [...flat(arr, Infinity)]
-const originResult2 = arr.flat(Infinity)
-console.log(myResult1)      // [1, 2, 3, 1, 2, 3, 4, [2, 3, 4]]
-console.log(originResult1)  // [1, 2, 3, 1, 2, 3, 4, [2, 3, 4]]
-console.log(myResult2 )     // [1, 2, 3, 1, 2, 3, 4, 2, 3, 4]
-console.log(originResult2 ) // [1, 2, 3, 1, 2, 3, 4, 2, 3, 4]
-```
-
-### 手写数组map方法
-`map`方法接受两个参数，其中第二个参数为`callback`回调函数执行时的`this`。
-
-#### while循环方案
-```js
-// MDN: Array.prototype.map
 Array.prototype.myMap = function (callback, context) {
-  if (this === null) {
-    throw new TypeError('this is null or not defined')
-  }
-  if (typeof callback !== 'function') {
-    throw new TypeError(`${callback} is not a function`)
-  }
-  let arr = Object(this)
-  let thisArg = arguments.length > 1 ? arguments[1] : undefined
-  const len = arr.length >>> 0
-  let result = new Array(len)
-  let index = 0
-  while (index < len) {
-    let value, mapValue
-    if (index in arr) {
-      value = arr[index]
-      mapValue = callback.call(this.thisArg, value, index, arr)
-      result[index] = mapValue
-    }
-    index++
-  }
-  return result
-}
-const arr = [1, 2, 3, , 4]
-const myResult = arr.myMap(value => value + 1)
-const originResult = arr.map(value => value + 1)
-console.log(myResult)     // [2, 3, 4, empty, 5]
-console.log(originResult) // [2, 3, 4, empty, 5]
+	return this.reduce((pre, cur, index, arr) => {
+		pre[index] = callback.call(context, cur, index, arr);
+		return pre;
+	}, []);
+};
 ```
 
-#### reduce方案
+### reduce
 ```js
-// MDN: Array.prototype.reduce
-Array.prototype.myMap = function (callback, context) {
-  return this.reduce((acc, cur, index, array) => {
-    acc[index] = callback.call(context, cur, index, array)
-    return acc
-  }, [])
-}
-const arr = [1, 2, 3, , 4]
-const myResult = arr.myMap(value => value + 1)
-const originResult = arr.map(value => value + 1)
-console.log(myResult)     // [2, 3, 4, empty, 5]
-console.log(originResult) // [2, 3, 4, empty, 5]
-```
-
-### 手写数组reduce方法
-此小节先介绍`reduce`方法的实现，再介绍基于`reduce`方法的两个经典案例。
-#### reduce实现
-```js
-// MDN: Array.prototype.reduce
 Array.prototype.myReduce = function (callback, initialValue) {
-  if (this === null) {
-    throw new TypeError('Array.prototype.reduce called on null or undefined')
-  }
-  if (typeof callback !== 'function') {
-    throw new TypeError(`${callback} is not a function`)
-  }
-  const array = Object(this)
-  const len = array.length >>> 0
-  let index = 0
-  let result
-  // 处理初始值
-  if (arguments.length > 1) {
-    result = initialValue
-  } else {
-    // example: [,,,,5]
-    while(index < len && !(index in array)) {
-      index++
-    }
-    if (index >= len) {
-      throw new TypeError('Reduce of empty array with no initial value')
-    }
-    value = array[index++]
-  }
-  while (index < len) {
-    if (index in array) {
-      result = callback(result, array[index], index, array)
-    }
-    index++
-  }
-  return result
-}
-const array = [1, , 2, 3, , , 5]
-const myResult = array.myReduce((acc, cur) => acc + cur, 0)
-const originResult = array.reduce((acc, cur) => acc + cur, 0)
-console.log(myResult)     // 11
-console.log(originResult) // 11
+	if (typeof callback !== "function") {
+		throw new TypeError(`${callback} is not a function`);
+	}
+
+	const n = this.length;
+	let index = 0;
+	let result;
+
+	// 处理初始值
+	if (initialValue) {
+		result = initialValue;
+	} else {
+		if (n === 0) {
+			throw new TypeError(
+				"Reduce of empty this with no initial value"
+			);
+		}
+		result = this[index++];
+	}
+
+	while (index < n) {
+		if (index in this) {
+			result = callback(result, this[index], index, this);
+		}
+		index++;
+	}
+	return result;
+};
 ```
 
-#### 基于reduce顺序执行promise
+## 数组去重
 ```js
-function p1 (val) {
-  return new Promise(resolve => {
-    resolve(val * 1)
-  })
-}
-function p2 (val) {
-  return new Promise(resolve => {
-    resolve(val * 2)
-  })
-}
-function p3 (val) {
-  return val * 3
-}
-function runPromiseInSequence (promiseArr, val) {
-  return promiseArr.reduce((promiseChain, currentFunc) => {
-    return promiseChain.then(currentFunc)
-  }, Promise.resolve(val))
-}
+const arr = [1, 2, 2, 'abc', 'abc', true, true, false, false, undefined, undefined, NaN, NaN]
 
-const promiseArr = [p1, p2, p3]
-runPromiseInSequence(promiseArr, 1).then(console.log) // 6
+// Set
+const result = Array.from(new Set(arr));
+
+// Reduce
+const result = arr.reduce((pre, cur) =>
+ !pre.includes(cur) ? (pre.push(cur), pre) : pre, []
+);
+
+// filter
+const result = arr.filter((item, index) => arr.indexOf(item) === index)
 ```
 
-#### 基于reduce实现管道函数pie
+## 实现Object.create
 ```js
-// pie顺序执行每一个参数函数
-const pieFunc1 = x => x + 1
-const pieFunc2 = x => x + 2
-const pieFunc3 = x => x + 3
-function pie () {
-  const funcArr = [...arguments]
-  return function (val) {
-    return funcArr.reduce((acc, fn) => {
-      acc = fn(acc)
-      return acc
-    }, val)
-  }
+function create(proto, propertiesObject) {
+	if (!(proto === null || typeof proto === "object" || typeof proto === "function")) {
+		throw new TypeError(
+			"Object prototype may only be an Object or null"
+		);
+	}
+
+	// 设置原型
+	function F() {}
+	F.prototype = proto;
+	const result = new F();
+
+	// 兼容第二个参数
+	if (propertiesObject !== null && propertiesObject !== undefined) {
+		Object.defineProperties(result, propertiesObject);
+	}
+
+	// 兼容null
+	if (proto === null) result.__proto__ = null;
+    
+	return result;
 }
-const func1 = pie(pieFunc1, pieFunc2)
-const func2 = pie(pieFunc1, pieFunc3)
-console.log(func1(0))   // 3
-console.log(func2(10))  // 14
 ```
 
-### 手写数组去重方法
-数组去重有很多种方法，这里只介绍两种：`Set`结构去重和`reduce`方法去重。
+## 函数柯里化
+::: tip
+**柯里化：**又称部分求值，一个柯里化参数首先会接受一些参数，接受这些参数之后，该函数并不会立即求值，而是继续返回另外一个函数，刚才传入的参数在函数形成的闭包中被保存起来，待到合适的时机一起求值。
+:::
 ```js
-// 定义变量
-const arr = [1, 2, 3, 1, 3, 4, 5, 4]
-let uniqueArray = []
-
-// 1.Set结构去重
-uniqueArr = Array.from(new Set(arr))
-console.log(uniqueArr) // [1, 2, 3, 4, 5]
-
-// 2.reduce方法去重
-function deDuplicationArray (array) {
-  if (!array || array.length === 0) {
-    return []
-  }
-  return array.reduce((acc, cur) => {
-    if (acc.indexOf(cur) === -1) {
-      acc.push(cur)
-    }
-    return acc
-  }, [])
+function curry(fn) {
+    return function curried(...args) {
+		if (args.length >= fn.length) {
+			return fn.apply(this, args);
+		} else {
+			return function (...moreArgs) {
+				return curried.apply(this, args.concat(moreArgs));
+			};
+		}
+	};
 }
-uniqueArr = deDuplicationArray(arr)
-console.log(uniqueArr) // [1, 2, 3, 4, 5]
 ```
 
-### 手写基于发布/订阅的事件系统
-事件系统包括如下几个方法：
-1. `on`监听事件方法。
-2. `off`取消监听事件方法。
-3. `emit`触发事件方法。
-4. `once`绑定一次事件监听方法。
+## 实现继承
 ```js
-function invokeCallback (callback, context, args) {
-  try {
-    callback && callback.apply(context, args)
-  } catch {
-    console.log('invoke callback error')
-  }
+function inherit(subType, superType) {
+	// 继承父类原型上的属性
+	const prototype = Object.create(superType.prototype);
+	// 将constructor指向子类构造器
+	prototype.constructor = subType;
+	// 存储父类
+	subType.super = superType;
+	// 继承静态属性
+	Object.setPrototypeOf(subType, superType);
 }
-const event = {
-  subs: {},
-  on: function (event, callback) {
-    if (Array.isArray(event)) {
-      for (let index = 0; index < event.length; index++) {
-        this.on(event[index], callback)
-      }
-    } else {
-      if (!this.subs[event]) {
-        this.subs[event] = []
-      }
-      this.subs[event].push(callback)
-    }
-  },
-  off: function (event, callback) {
-    // 1、一个参数都没有，解绑全部
-    // 2、只传event，解绑改event所有事件
-    // 3、两个参数都传递，只移除指定某一个
-    if(!arguments.length) {
-      this.subs = Object.create(null)
-      return
-    }
-    if (Array.isArray(event)) {
-      for (let index = 0; index < event.length; index++) {
-        this.off(event[index], callback)
-      }
-      return
-    }
-    const cbs = this.subs[event]
-    if (!cbs || cbs.length === 0) {
-      return
-    }
-    if (!callback) {
-      this.subs[event] = null
-      return
-    }
-    let cb
-    let i = cbs.length
-    while(i--) {
-      cb = cbs[i]
-      if (cb === callback || cb.fn === callback) {
-        cbs.splice(i, 1)
-        break
-      }
-    }
-  },
-  once: function (event, callback) {
-    const self = this
-    function on () {
-      self.off(event, on)
-      callback.apply(self, arguments)
-    }
-    this.on(event, on)
-  },
-  emit: function (event) {
-    const cbs = this.subs[event]
-    if (cbs && cbs.length > 0) {
-      const args = [...arguments].slice(1)
-      for (let index = 0, len = cbs.length; index < len; index++) {
-        invokeCallback(cbs[index], this, args)
-      }
-    }
-  }
-}
-const speakCallback1 = () => {
-  console.log('speak callback1')
-}
-const speakCallback2 = () => {
-  console.log('speak callback2')
-}
-const combineCallback = () => {
-  console.log('write or listen callback')
-}
-const runningCallback1 = (msg) => {
-  console.log('running callback1')
-}
-const runningCallback2 = (msg) => {
-  console.log('running callback2')
-}
-event.on('speak', speakCallback1)
-event.on('speak', speakCallback2)
-event.on(['write', 'listen'], combineCallback)
-event.once('running', runningCallback1)
-event.once('running', runningCallback2)
-
-event.emit('speak')   // speak callback1, speak callback2
-event.emit('running') // running callback1
-event.emit('running') // running callback2
-event.emit('write')   // write or listen callback
-
-event.off('speak', speakCallback1)
-event.off(['write', 'listen'])
-event.emit('speak')   // speak callback2
-event.emit('write')   //
-event.emit('listen')  // 
-
-event.off()
-event.emit('speak')   // 
-event.emit('running') //
 ```
 
-
-### 手写Vue nextTick方法
-`nextTick`支持两种形式使用方式：
-1. 回调函数形式。
-2. 如果当前环节支持`Promise`，还支持`Promise.then`的形式。
+## 实现JSONP
 ```js
-this.$nextTick(() => {
-  // callback形式
-})
-this.$nextTick().then(() => {
-  // Promise.then形式
-})
-```
-基于`Vue`源码，`nextTick`手写代码如下：
-```js
-let pending = false
-let timeFunc
-const callbacks = []
-function flushCallbacks () {
-  pending = false
-  const cbs = callbacks.slice()
-  callbacks.length = 0
-  for (let index = 0, len = cbs.length; index < len; index++) {
-    cbs[index]()
-  }
+// 动态的加载js文件
+function JSONP(url, callback) {
+	url = `${url}?callback=${callback}`;
+	const script = document.createElement("script");
+	script.src = url;
+	document.body.appendChild(script);
 }
-
-function invokeCallback (callback, context) {
-  try {
-    callback.call(context)
-  } catch {
-    console.log('invoke nextTick callback error')
-  }
-}
-
-function nextTick (cb, context) {
-  context = context || window
-  let _resolve
-  callbacks.push(() => {
-    if (cb) {
-      invokeCallback(cb, context)
-    } else if (_resolve) {
-      _resolve(context)
-    }
-  })
-  if (!pending) {
-    pending = true
-    timeFunc()
-  }
-  if (!cb && typeof Promise !== 'undefined') {
-    return new Promise(resolve => {
-      _resolve = resolve
-    })
-  }
-}
-function setTimeFunc () {
-  if (typeof Promise !== 'undefined') {
-    const p = Promise.resolve()
-    timeFunc = () => {
-      p.then(flushCallbacks)
-    }
-  } else if (typeof MutationObserver !== 'undefined') {
-    let number = 1
-    const observer = new MutationObserver(flushCallbacks)
-    const textNode = document.createTextNode(String(number))
-    observer.observe(textNode, {
-      characterData: true
-    })
-    timeFunc = () => {
-      number = (number + 1) % 2
-      textNode.data = number
-    }
-  } else if (typeof setImmediate !== 'undefined') {
-    timeFunc = () => {
-      setImmediate(flushCallbacks)
-    }
-  } else {
-    timeFunc = () => {
-      setTimeout(flushCallbacks, 0)
-    }
-  }
-}
-setTimeFunc()
-
-nextTick(() => {
-  console.log('nextTick callback')
-})
-nextTick().then(() => {
-  console.log('nextTick promise')
-})
 ```
