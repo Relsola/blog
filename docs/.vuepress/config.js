@@ -38,7 +38,6 @@ module.exports = {
 					{ text: "Vue2基础", link: "/vue/vue2base" },
 					{ text: "Vue3基础", link: "/vue/vue3base" },
 					{ text: "Vue核心插件", link: "/vue/libraries" },
-					// { text: "Vue测试", link: "/vue/vueTest" },
 					{
 						text: "Vue2源码解读",
 						link: "/vue/vue2sourceCode"
@@ -95,7 +94,7 @@ module.exports = {
 			{
 				text: "其他",
 				items: [
-					{ text: "Git操作", link: "/other/git" },
+					{ text: "Git常用命令", link: "/other/git" },
 					{ text: "浏览器&网络", link: "/other/browser" }
 				]
 			}

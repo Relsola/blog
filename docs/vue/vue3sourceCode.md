@@ -423,8 +423,3 @@ export function triggerEffects(effects) {
 }
 ```
 这里比较难以理解，建议多看几遍，明白副作用如何执行。
-
-### watch
-
-
-## 运行时
