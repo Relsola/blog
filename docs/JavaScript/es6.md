@@ -8,8 +8,7 @@ sidebar: auto
 大多数类C语言在声明变量的同时也会创建变量，而在以前的`JavaScript`中，何时创建变量要看如何声明变量，`ES6`引入块级作用域可以让我们更好的控制作用域。
 
 ### var声明和变量提升机制
-在函数作用域或全局作用域中通过关键字`var`声明的变量，无论实际上是在哪里声明的，都会被当成在当前作用域顶部声明的变量，这就是我们常说的提升机制。除了`var`变量会提升以外，`function`函数声明也存在`hoisting`机制，<br/>
-
+在函数作用域或全局作用域中通过关键字`var`声明的变量，无论实际上是在哪里声明的，都会被当成在当前作用域顶部声明的变量，这就是我们常说的提升机制。除了`var`变量会提升以外，`function`函数声明也存在`hoisting`机制
 ```js
 function getValue (condition) {
   if (condition) {
@@ -4291,24 +4290,4 @@ items.pushAll(colors)
 let worker = new Worker('math.js', {
   type: 'module'
 })
-```
-
-#### 浏览器模块说明符解析
-我们可以发现，我们之前的所有示例中，模块说明符使用的都是相对路径，浏览器要求模块说明符具有以下几种格式之一：
-* 以`/`开头的解析为根目录开始。
-* 以`./`开头的解析为当前目录开始。
-* 以`../`开头的解析为父目录开始。
-* `URL`格式。
-
-```js
-import { first } from '/example1.js'
-import { second } from './example2.js'
-import { three } from '../example3.js'
-import { four } from 'https://www.baidu.com/example4.js'
-```
-
-下面这些看起来正常的模块说明符在浏览器中实际上是无效的：
-```js
-import { first } from 'example1.js'
-import { second } from 'example/example2.js'
 ```

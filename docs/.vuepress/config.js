@@ -36,7 +36,6 @@ module.exports = {
 				text: "Vue",
 				items: [
 					{ text: "Vue2基础", link: "/vue/vue2base" },
-					{ text: "Vue3基础", link: "/vue/vue3base" },
 					{ text: "Vue核心插件", link: "/vue/libraries" },
 					{
 						text: "Vue2源码解读",
@@ -53,7 +52,8 @@ module.exports = {
 				text: "React",
 				items: [
 					{ text: "React基础", link: "/react/base" },
-					{ text: "React生态", link: "/react/ecology" },
+					{ text: "React路由", link: "/react/router" },
+					{ text: "Redux", link: "/react/redux" },
 					{ text: "React源码", link: "/react/sourceCode" }
 				]
 			},
