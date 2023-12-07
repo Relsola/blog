@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body style="width: 100vw; height: 100vh">
+    <p>hello world</p>
+    <button onclick="fn()">1111</button>
+  </body>
+</html>
+<script>
+  const handler = {
+    get(target, key, receiver) {
+      const index = Number(key);
+      const prop = index < 0 ? `${target.length + index}` : key;
+      return Reflect.get(target, prop, receiver);
+    }
+  };
+
+  const createArray = (...elements) =>
+    new Proxy([...elements], {
+      get(target, key, receiver) {
+        const index = Number(key);
+        const prop = index < 0 ? `${target.length + index}` : key;
+        return Reflect.get(target, prop, receiver);
+      }
+    });
+
+  let arr = createArray('a', 'b', 'c');
+
+  console.log(arr[-1]); // 'c'
+  console.log(arr[-2]); // 'c'
+
+  const merge = (...objs) =>
+    [...objs].reduce(
+      (acc, obj) =>
+        Object.keys(obj).reduce((a, k) => {
+          acc[k] = acc.hasOwnProperty(k) ? [].concat(acc[k]).concat(obj[k]) : obj[k];
+          return acc;
+        }, {}),
+      {}
+    );
+  const object = {
+    a: { x: 2 },
+    b: 1
+  };
+  const other = {
+    a: { z: 3 },
+    b: [2, 3],
+    c: 'foo'
+  };
+  console.log(merge(object, other));
+
+  const recordAnimationFrames = (callback, autoStart = true) => {
+    let running = false,
+      raf;
+    const stop = () => {
+      if (!running) return;
+      running = false;
+      cancelAnimationFrame(raf);
+    };
+    const start = () => {
+      if (running) return;
+      running = true;
+      run();
+    };
+    const run = () => {
+      raf = requestAnimationFrame(() => {
+        callback();
+        if (running) run();
+      });
+    };
+    if (autoStart) start();
+    return { start, stop };
+  };
+  const cb = () => console.log('Animation frame fired');
+  const recorder = recordAnimationFrames(cb);
+  // logs 'Animation frame fired' on each animation frame
+  //   recorder.stop(); // stops logging
+  //   recorder.start(); // starts again
+  setTimeout(() => { recorder.stop() }, 2000);
+  //   setTimeout(() => {
+  //     recorder.start();
+  //   }, 4000);
+  const recorder2 = recordAnimationFrames(cb, false);
+</script>

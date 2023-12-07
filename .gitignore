@@ -1,7 +1,11 @@
-docs/.vuepress/dist
-node_modules
+# Editor directories and files
+.vscode
+main.d.ts
 
+# node
+node_modules
 pnpm-lock.yaml
 
-.temp
-.vscode
+# vitepress build output
+.vitepress/dist
+.vitepress/cache

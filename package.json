@@ -1,15 +1,28 @@
 {
+  "name": "blog",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "dev": "vuepress dev docs",
-    "build": "vuepress build docs",
-    "depoly": "depoly.sh"
+    "dev": "vitepress",
+    "build": "vitepress build"
   },
-  "keywords": [
-    "Relsola的博客",
-    "Relsola"
-  ],
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "element-ui": "^2.10.0",
-    "vuepress": "^1.9.9"
-  }
+    "@element-plus/icons-vue": "^2.3.1",
+    "element-plus": "^2.4.3",
+    "vue": "^3.3.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.9.0",
+    "@vitejs/plugin-vue": "^4.4.1",
+    "@vitejs/plugin-vue-jsx": "^3.0.2",
+    "unplugin-auto-import": "^0.17.1",
+    "unplugin-vue-components": "^0.25.2",
+    "vitepress": "1.0.0-rc.25"
+  },
+  "type": "module"
 }
+
