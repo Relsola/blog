@@ -118,7 +118,7 @@ console.log(result);
 
 ::: code-group
 
-```js [不使用标识符 <code>g</code>]
+```JavaScript [不使用标识符 <code>g</code>]
 const str = 'see Chapter 3.4.5.1';
 const regexp = /see (chapter \d+(\.\d)*)/i;
 const result = str.match(regexp);
@@ -127,7 +127,7 @@ console.log(result);
 // => ['see Chapter 3.4.5.1', 'Chapter 3.4.5.1', '.1', index: 0, input: 'see Chapter 3.4.5.1', groups: undefined]
 ```
 
-```ts [使用标识符 <code>g</code>]
+```JavaScript [使用标识符 <code>g</code>]
 const str = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 const regexp = /[A-E]/gi;
 const result = str.match(regexp);
@@ -145,7 +145,7 @@ console.log(result);
 
 ::: code-group
 
-```js [指定插值作为替换项]
+```JavaScript [指定插值作为替换项]
 const regexp = /(\w+)\s(\w+)/;
 const str = 'Maria Cruz';
 const newStr = str.replace(regexp, '$2, $1');
@@ -153,7 +153,7 @@ const newStr = str.replace(regexp, '$2, $1');
 console.log(newStr); // Cruz, Maria
 ```
 
-```ts [使用函数作为替换项]
+```JavaScript [使用函数作为替换项]
 const str = 'borderTop';
 function upperToHyphenLower(match, offset, string) {
   return (offset > 0 ? '-' : '') + match.toLowerCase();
