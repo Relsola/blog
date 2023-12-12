@@ -5,6 +5,9 @@ import AutoImport from 'unplugin-auto-import/vite';
 import Components from 'unplugin-vue-components/vite';
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 
+import { JS_NAV, JS_SIDEBAR } from './JavaScript';
+import { theme } from './set';
+
 const resolve = (src: string): string => path.resolve(__dirname, `../${src}`);
 
 export default defineConfigWithTheme({
@@ -17,26 +20,13 @@ export default defineConfigWithTheme({
   themeConfig: {
     nav: [
       {
-        text: 'JavaScript',
-        items: [
-          { text: 'API', link: '/JavaScript/api' },
-          {
-            text: '技巧',
-            items: [
-              { text: 'JavaScript', link: '/JavaScript/custom/JavaScript' },
-              { text: 'Vue', link: '/JavaScript/custom/Vue' }
-            ]
-          },
-          {
-            text: '进阶',
-            items: [
-              { text: '正则表达式', link: '/JavaScript/advanced/RegExp/index' },
-              { text: '位运算', link: '/JavaScript/advanced/Bitwise/index' }
-            ]
-          }
-        ]
+        ...JS_NAV
       }
-    ]
+    ],
+    sidebar: {
+      ...JS_SIDEBAR
+    },
+    ...theme
   },
 
   vite: {

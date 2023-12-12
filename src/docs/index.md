@@ -6,7 +6,7 @@ hero:
   text: 内容信息
   tagline: 副内容信息
   image:
-    src: /logo.png
+    src: 'http://localhost:5173/images/logo.png'
     alt: 网站的 logo 图片
   actions:
     - theme: brand
