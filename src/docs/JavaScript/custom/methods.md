@@ -1,62 +1,120 @@
-# JavaScript 实用方法
+# JS 功能函数
 
-### 深浅拷贝
+## 深浅拷贝
 
-测试用例：
+### 测试用例
 
 ```JavaScript
 const data = {
-    name: 'Jack',
-    date: [new Date(1536627600000), new Date(1540047600000)],
+  name: 'Jack',
+  obj: { a: 1, b: 2 },
 
-    re: new RegExp("\\w+"),
-    err: new Error('"x" is not defined'),
+  date: [new Date(1536627600000), new Date(1540047600000)],
+  re: new RegExp('\\w+'),
+  err: new Error('"x" is not defined'),
 
-    func: function () { console.log(1) },
-    val: undefined,
-    sym: Symbol('foo'),
+  func: function () {
+    console.log(1);
+  },
+  val: undefined,
+  sym: Symbol('foo'),
 
-    nan: NaN,
-    infinityMax: Infinity,
-}
+  [Symbol('bar')]: [1, 2, 3],
 
-JSON.parse(JSON.stringify())
+  nan: NaN,
+  infinityMax: Infinity,
 
-Object.assign({},data)
-
-{...data}
-
+  key: data
+};
 ```
 
-深拷贝:
+### 浅拷贝
+
+1. 扩展运算符
+2. `Object.assign`
 
 ```JavaScript
-/*
-  拷贝 Date 引用类型会变成字符串
-  拷贝 RegExp Error 类型会变成空对象；
-   function、undefined、symbol 会消失。
-  无法处理循环引用的情况
-  NaN和infinity会转换成null
-*/
+const copy = { ...data };
 
-// 通过递归实现深拷贝  WeakMap 弱引用优化循环引用
+const copy = Object.assign({}, data);
+```
+
+### 深拷贝
+
+通过递归实现深拷贝 `WeakMap` 弱引用优化循环引用
+
+```JavaScript
 function deepClone(source, map = new WeakMap()) {
-    // 如果不是复杂数据类型 或者为null，直接返回
-    if (typeof source !== "object" || source === null) return source
-    if (source instanceof RegExp) return new RegExp(source);
-    if (source instanceof Date) return new Date(source);
-    if (source instanceof Error) return new Error(source);
-    // 解决循环引用 obj[key] = obj
-    if (map.has(source)) return map.get(source);
-    const cloneObj = Array.isArray(source) ? [] : {};
-    map.set(source, cloneObj)
-    for (const key in source) {
-        // 判断是否是对象自身的属性，筛掉对象原型链上继承的属性
-        if (source.hasOwnProperty(key)) {
-            // 如果 obj[key] 是复杂数据类型，递归
-            cloneObj[key] = deepClone(source[key], map);
-        }
-    }
-    return cloneObj;
+  // 如果不是复杂数据类型 或者为null，直接返回
+  if (source === null || !(typeof source === 'function' || typeof source === 'object')) {
+    return source;
+  }
+  // 深拷贝函数
+  if (typeof source === 'function') {
+    return new Function(`return ${source.toString()}`)();
+  }
+  // 拷贝特殊对象
+  if (source instanceof RegExp) {
+    return new RegExp(source);
+  }
+  if (source instanceof Date) {
+    return new Date(source);
+  }
+  if (source instanceof Error) {
+    return new Error(source);
+  }
+  // 解决循环引用
+  if (map.has(source)) {
+    return map.get(source);
+  }
+  const clone = Array.isArray(source) ? [] : {};
+  map.set(source, clone);
+  // 递归拷贝
+  Object.keys(source).forEach(key => {
+    clone[key] = deepClone(source[key], map);
+  });
+  // 拷贝Symbols属性
+  Object.getOwnPropertySymbols(source).forEach(key => {
+    clone[key] = deepClone(source[key], map);
+  });
+  return clone;
 }
+```
+
+## 数组扁平化
+
+### `flat` -- 简洁
+
+```JavaScript
+arr.flat(Infinity);
+```
+
+### `reduce`
+
+```JavaScript
+const flatten = arr =>
+  arr.reduce((pre, cur) => pre.concat(Array.isArray(cur) ? flatten(cur) : cur), []);
+```
+
+### `递归`
+
+```JavaScript
+const flatten = arr => {
+  let result = [];
+  arr.forEach(item => {
+    result = result.concat(Array.isArray(item) ? flatten(item) : item);
+  });
+  return result;
+};
+```
+
+### `扩展运算符`
+
+```JavaScript
+const flatten = arr => {
+  while (arr.some(Array.isArray)) {
+    arr = [].concat(...arr);
+  }
+  return arr;
+};
 ```

@@ -18,6 +18,7 @@ export default defineConfigWithTheme({
   markdown: { lineNumbers: true },
 
   themeConfig: {
+    logo: 'images/icon.png',
     nav: [
       {
         ...JS_NAV

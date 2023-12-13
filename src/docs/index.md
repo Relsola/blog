@@ -2,27 +2,26 @@
 layout: home
 
 hero:
-  name: 主标题
-  text: 内容信息
-  tagline: 副内容信息
+  name: Relsola's Blog
+  tagline: 个人博客，记录学习和分享编程知识
   image:
-    src: 'http://localhost:5173/images/logo.png'
+    src: 'images/logo.png'
     alt: 网站的 logo 图片
   actions:
     - theme: brand
       text: 快速开始
-      link: /guide/what-is-vitepress
+      link: JavaScript/base/function.html
     - theme: alt
       text: 在 github 上查看
-      link: https://github.com/vuejs/vitepress
+      link: https://github.com/Relsola/blog
 features:
   - icon: ⚡️
-    title: 这里是功能区 1
-    details: 这里是功能区 1 详情信息
+    title: 夯实基础
+    details: 勿在浮沙筑高台
   - icon: 🖖
-    title: 这里是功能区 2
-    details: 这里是功能区 2 详情信息
+    title: 全栈开发
+    details: 以JavaScript开始，全栈开发
   - icon: 🛠️
-    title: 这里是功能区 3
-    details: 这里是功能区 3 详情信息
+    title: 最佳实践
+    details: 记录最佳实践和实用技巧
 ---
