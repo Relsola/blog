@@ -13,6 +13,7 @@
     "paths": {
       "@theme/*": [".vitepress/theme/*"],
       "@/*": ["src/*"],
+      "$/*": ["examples/*"],
       "@utils*": ["src/utils/*"],
       "@hooks*": ["src/hooks/*"]
     }

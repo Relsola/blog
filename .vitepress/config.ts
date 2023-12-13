@@ -43,9 +43,12 @@ export default defineConfigWithTheme({
     resolve: {
       alias: {
         '@': resolve('src'),
+        $: resolve('examples'),
         '@utils': resolve('src/utils'),
         '@hooks': resolve('src/hooks')
       }
-    }
+    },
+
+    ssr: { noExternal: ['element-plus'] }
   }
 });

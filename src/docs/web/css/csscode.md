@@ -1,13 +1,13 @@
 <script setup>
     /* Button */
-    import Download1 from "../../../examples/web/css/csscode/Button/Download1.vue";
+    import Download1 from "$/web/css/csscode/Button/Download1.vue";
 
-    import Delete1 from "../../../examples/web/css/csscode/Button/Delete1.vue";
+    import Delete1 from "$/web/css/csscode/Button/Delete1.vue";
 
-    import Add1 from "../../../examples/web/css/csscode/Button/Add1.vue";
+    import Add1 from "$/web/css/csscode/Button/Add1.vue";
 
     /* Loading */
-    import Loading1 from "../../../examples/web/css/csscode/Loading/Loading1.vue";
+    import Loading1 from "$/web/css/csscode/Loading/Loading1.vue";
 
 
 /* 
@@ -131,7 +131,12 @@
 <button class="button" type="button">
   <span class="button__text">Delete</span>
   <span class="button__icon">
-    <svg class="svg" height="512" viewBox="0 0 512 512" width="512" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      class="svg"
+      height="512"
+      viewBox="0 0 512 512"
+      width="512"
+      xmlns="http://www.w3.org/2000/svg">
       <title></title>
       <path
         d="M112,112l20,320c.95,18.49,14.4,32,32,32H348c17.67,0,30.87-13.51,32-32l20-320"
