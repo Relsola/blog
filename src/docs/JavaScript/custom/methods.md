@@ -5,6 +5,8 @@
 ### 测试用例
 
 ```JavaScript
+const obj = {};
+
 const data = {
   name: 'Jack',
   obj: { a: 1, b: 2 },
@@ -24,8 +26,10 @@ const data = {
   nan: NaN,
   infinityMax: Infinity,
 
-  key: data
+  key: obj
 };
+
+obj.key = data;
 ```
 
 ### 浅拷贝
@@ -55,7 +59,10 @@ function deepClone(source, map = new WeakMap()) {
   }
   // 拷贝特殊对象
   if (source instanceof RegExp) {
-    return new RegExp(source);
+    const reg = new RegExp(source);
+    reg.__proto__ = source.__proto__;
+    reg.lastIndex = source.lastIndex;
+    return reg;
   }
   if (source instanceof Date) {
     return new Date(source);
@@ -68,6 +75,8 @@ function deepClone(source, map = new WeakMap()) {
     return map.get(source);
   }
   const clone = Array.isArray(source) ? [] : {};
+  // 继承原型
+  clone.__proto__ = source.__proto__;
   map.set(source, clone);
   // 递归拷贝
   Object.keys(source).forEach(key => {
