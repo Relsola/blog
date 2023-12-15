@@ -1,14 +1,6 @@
 import { defineConfigWithTheme } from 'vitepress';
-import path from 'path';
-import vueJsx from '@vitejs/plugin-vue-jsx';
-import AutoImport from 'unplugin-auto-import/vite';
-import Components from 'unplugin-vue-components/vite';
-import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
-
-import { JS_NAV, JS_SIDEBAR } from './JavaScript';
-import { theme } from './set';
-
-const resolve = (src: string): string => path.resolve(__dirname, `../${src}`);
+import { nav, sidebar } from './nav-sidebar';
+import vite from './vite';
 
 export default defineConfigWithTheme({
   title: 'Relsola',
@@ -19,37 +11,17 @@ export default defineConfigWithTheme({
 
   themeConfig: {
     logo: 'images/icon.png',
-    nav: [
-      {
-        ...JS_NAV
-      }
-    ],
-    sidebar: {
-      ...JS_SIDEBAR
-    },
-    ...theme
+    nav,
+    sidebar,
+    outlineTitle: '本页目录',
+    darkModeSwitchLabel: '切换主题',
+    sidebarMenuLabel: '菜单',
+    returnToTopLabel: '回到顶部',
+    docFooter: {
+      prev: '上一页',
+      next: '下一页'
+    }
   },
 
-  vite: {
-    plugins: [
-      vueJsx(),
-      AutoImport({
-        resolvers: [ElementPlusResolver()]
-      }),
-      Components({
-        resolvers: [ElementPlusResolver()]
-      })
-    ],
-
-    resolve: {
-      alias: {
-        '@': resolve('src'),
-        $: resolve('examples'),
-        '@utils': resolve('src/utils'),
-        '@hooks': resolve('src/hooks')
-      }
-    },
-
-    ssr: { noExternal: ['element-plus'] }
-  }
+  vite
 });
