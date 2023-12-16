@@ -3,10 +3,12 @@ export default {
     {
       text: 'Vue2.x进阶',
       items: [
-        { text: '实用技巧', link: 'JavaScript/practice/index' },
-        { text: 'render函数', link: 'JavaScript/practice/index' },
+        { text: '实用技巧', link: 'JavaScript/vue/vue2/advanced/render/render' },
+        { text: 'render函数', link: 'JavaScript/vue/vue2/advanced/render/render' },
         { text: '组合 & 复用', link: 'JavaScript/practice/index' }
       ]
+      // collapsible: true,
+      // collapsed: false
     },
     {
       text: 'Vue2应用测试',
@@ -42,6 +44,18 @@ export default {
       items: [
         { text: 'render函数', link: 'JavaScript/practice/index' },
         { text: 'Element-ui', link: 'JavaScript/practice/index' }
+      ]
+    }
+  ],
+
+  'JavaScript/vue/vue2/advanced/render': [
+    {
+      text: 'render函数',
+      items: [
+        { text: 'render函数', link: 'JavaScript/vue/vue2/advanced/render/render' },
+        { text: 'Vue2中的JSX', link: 'JavaScript/vue/vue2/advanced/render/JSX' },
+        { text: '函数式组件', link: 'JavaScript/vue/vue2/advanced/render/function' },
+        { text: '实践应用', link: 'JavaScript/vue/vue2/advanced/render/practice' }
       ]
     }
   ]

@@ -1,5 +1,5 @@
 export default {
-  '/JavaScript/vue': [
+  '/JavaScript/react': [
     {
       text: 'Vue2.x进阶',
       items: [

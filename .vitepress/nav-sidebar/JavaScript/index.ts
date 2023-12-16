@@ -6,7 +6,7 @@ import practiceSidebar from './practice';
 
 export const JS_NAV = {
   text: 'JavaScript',
-  activeMatch: `^/JavaScript/(base|custom|advanced|practice)/`,
+  activeMatch: `^/JavaScript/(base|advanced|vue|react|practice)/`,
   items: [
     { text: 'JS 基础', link: 'JavaScript/base/function' },
     { text: 'JS 进阶', link: 'JavaScript/advanced/methods' },
