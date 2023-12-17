@@ -127,3 +127,39 @@ const flatten = arr => {
   return arr;
 };
 ```
+
+## 将文本复制到粘贴板
+
+```JavaScript
+const flatten = arr =>
+  arr.reduce((pre, cur) => pre.concat(Array.isArray(cur) ? flatten(cur) : cur), []);
+```
+
+### `递归`
+
+```JavaScript
+function copyToClipboard(str) {
+	if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
+		return navigator.clipboard.writeText(str);
+	} else {
+		const el = document.createElement('input');
+		el.value = str;
+		el.setAttribute('readonly', '');
+		el.style.position = 'absolute';
+		el.style.left = '-9999px';
+		document.body.appendChild(el);
+		const selected =
+			document.getSelection().rangeCount > 0
+				? document.getSelection().getRangeAt(0)
+				: false;
+		el.select();
+		const flag = document.execCommand('copy');
+		document.body.removeChild(el);
+		if (selected) {
+			document.getSelection().removeAllRanges();
+			document.getSelection().addRange(selected);
+		}
+		return flag ? Promise.resolve('success') : Promise.reject('failure');
+	}
+}
+```
