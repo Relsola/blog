@@ -131,13 +131,6 @@ const flatten = arr => {
 ## 将文本复制到粘贴板
 
 ```JavaScript
-const flatten = arr =>
-  arr.reduce((pre, cur) => pre.concat(Array.isArray(cur) ? flatten(cur) : cur), []);
-```
-
-### `递归`
-
-```JavaScript
 function copyToClipboard(str) {
 	if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
 		return navigator.clipboard.writeText(str);
@@ -162,4 +155,38 @@ function copyToClipboard(str) {
 		return flag ? Promise.resolve('success') : Promise.reject('failure');
 	}
 }
+```
+
+## 录制动画帧
+
+```JavaScript
+function recordAnimationFrames(callback, autoStart = true) {
+	let running = false, raf;
+	const stop = () => {
+		if (!running) {
+			return;
+		}
+		running = false;
+		cancelAnimationFrame(raf);
+	};
+	const start = () => {
+		if (running) {
+			return;
+		}
+		running = true;
+		run();
+	};
+	const run = () => {
+		raf = requestAnimationFrame(() => {
+			callback();
+			if (running) {
+				run();
+			}
+		});
+	};
+	if (autoStart) {
+		start();
+	}
+	return { start, stop };
+};
 ```
