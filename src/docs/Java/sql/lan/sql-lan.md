@@ -13,7 +13,7 @@
 ```sql
 # 注释
 SELECT *
-FROM coo; -- 注释
+FROM myTable; -- 注释
 /* 注释1
    注释2 */
 ```
@@ -29,7 +29,7 @@ USE test;
 ## 创建表
 
 ```sql
-CREATE TABLE coo (
+CREATE TABLE myTable (
   id INT NOT NULL AUTO_INCREMENT,
   col1 INT NOT NULL DEFAULT 1,
   col2 VARCHAR(45) NULL,
@@ -42,7 +42,7 @@ CREATE TABLE coo (
 添加列
 
 ```sql
-ALTER TABLE coo
+ALTER TABLE myTable
 ADD col CHAR(20);
 ```
 
@@ -50,21 +50,21 @@ ADD col CHAR(20);
 
 ```sql
 ---ALTER TABLE 表名 CHANGE 原字段名 新字段名 字段类型 约束条件
-ALTER TABLE coo
+ALTER TABLE myTable
 CHANGE col col1 CHAR(32) NOT NULL DEFAULT '123';
 ```
 
 删除列
 
 ```sql
-ALTER TABLE coo
+ALTER TABLE myTable
 DROP COLUMN col;
 ```
 
 删除表
 
 ```sql
-DROP TABLE coo;
+DROP TABLE myTable;
 ```
 
 ## 插入
@@ -72,29 +72,29 @@ DROP TABLE coo;
 普通插入
 
 ```sql
-INSERT INTO coo(col1, col2)
+INSERT INTO myTable(col1, col2)
 VALUES(val1, val2);
 ```
 
 插入检索出来的数据
 
 ```sql
-INSERT INTO coo1(col1, col2)
+INSERT INTO myTable1(col1, col2)
 SELECT col1, col2
-FROM coo2;
+FROM myTable2;
 ```
 
 将一个表的内容插入到一个新表
 
 ```sql
 CREATE TABLE newTable AS
-SELECT * FROM coo;
+SELECT * FROM myTable;
 ```
 
 ## 更新
 
 ```sql
-UPDATE coo
+UPDATE myTable
 SET col = val
 WHERE id = 1;
 ```
@@ -102,14 +102,14 @@ WHERE id = 1;
 ## 删除
 
 ```sql
-DELETE FROM coo
+DELETE FROM myTable
 WHERE id = 1;
 ```
 
 `TRUNCATE TABLE` 可以清空表，也就是删除所有行。
 
 ```sql
-TRUNCATE TABLE coo;
+TRUNCATE TABLE myTable;
 ```
 
 使用更新和删除操作时一定要用 `WHERE` 子句，不然会把整张表的数据都破坏。  
@@ -123,7 +123,7 @@ TRUNCATE TABLE coo;
 
 ```sql
 SELECT DISTINCT col1, col2
-FROM coo;
+FROM myTable;
 ```
 
 ### LIMIT
@@ -136,13 +136,13 @@ FROM coo;
 
 ```sql
 SELECT *
-FROM coo
+FROM myTable
 LIMIT 5;
 ```
 
 ```sql
 SELECT *
-FROM coo
+FROM myTable
 LIMIT 0, 5;
 ```
 
@@ -150,7 +150,7 @@ LIMIT 0, 5;
 
 ```sql
 SELECT *
-FROM coo
+FROM myTable
 LIMIT 2, 3;
 ```
 
@@ -163,7 +163,7 @@ LIMIT 2, 3;
 
 ```sql
 SELECT *
-FROM coo
+FROM myTable
 ORDER BY col1 DESC, col2 ASC;
 ```
 
@@ -174,7 +174,7 @@ ORDER BY col1 DESC, col2 ASC;
 
 ```sql
 SELECT *
-FROM coo
+FROM myTable
 WHERE col IS NULL;
 ```
 
@@ -214,7 +214,7 @@ WHERE col IS NULL;
 
 ```sql
 SELECT *
-FROM coo
+FROM myTable
 WHERE col LIKE '[^AB]%'; -- 不以 A 和 B 开头的任意文本
 ```
 
@@ -229,7 +229,7 @@ WHERE col LIKE '[^AB]%'; -- 不以 A 和 B 开头的任意文本
 
 ```sql
 SELECT col1 * col2 AS alias
-FROM coo;
+FROM myTable;
 ```
 
 `CONCAT()` 用于连接两个字段。  
@@ -238,7 +238,7 @@ FROM coo;
 
 ```sql
 SELECT CONCAT(TRIM(col1), '(', TRIM(col2), ')') AS concat_col
-FROM coo;
+FROM myTable;
 ```
 
 ## 函数
@@ -261,7 +261,7 @@ FROM coo;
 
 ```sql
 SELECT AVG(DISTINCT col1) AS avg_col
-FROM coo;
+FROM myTable;
 ```
 
 ### 文本处理
@@ -281,7 +281,7 @@ FROM coo;
 
 ```sql
 SELECT *
-FROM coo
+FROM myTable
 WHERE SOUNDEX(col1) = SOUNDEX('apple')
 ```
 
@@ -342,7 +342,7 @@ mysql> SELECT NOW();
 
 ```sql
 SELECT col, COUNT(*) AS num
-FROM coo
+FROM myTable
 GROUP BY col;
 ```
 
@@ -350,7 +350,7 @@ GROUP BY col;
 
 ```sql
 SELECT col, COUNT(*) AS num
-FROM coo
+FROM myTable
 GROUP BY col
 ORDER BY num;
 ```
@@ -359,7 +359,7 @@ ORDER BY num;
 
 ```sql
 SELECT col, COUNT(*) AS num
-FROM coo
+FROM myTable
 WHERE col > 2
 GROUP BY col
 HAVING num >= 2;
@@ -380,18 +380,18 @@ HAVING num >= 2;
 
 ```sql
 SELECT *
-FROM coo1
+FROM myTable1
 WHERE col1 IN (SELECT col2
-               FROM coo2);
+               FROM myTable2);
 ```
 
 下面的语句可以检索出客户的订单数量，子查询语句会对第一个查询检索出的每个客户执行一次:
 
 ```sql
 SELECT *
-FROM coo1
+FROM myTable1
 WHERE col1 IN (SELECT col2
-               FROM coo2);
+               FROM myTable2);
 ```
 
 ## 连接
@@ -502,16 +502,255 @@ orders 表:
 
 ## 组合查询
 
+使用 `UNION` 来组合两个查询，如果第一个查询返回 M 行，第二个查询返回 N 行，那么组合查询的结果一般为 M+N 行。
+
+每个查询必须包含相同的列、表达式和聚集函数。
+
+默认会去除相同行，如果需要保留相同行，使用 `UNION ALL`。
+
+只能包含一个 `ORDER BY` 子句，并且必须位于语句的最后。
+
+```sql
+SELECT col
+FROM myTable
+WHERE col = 1
+UNION
+SELECT col
+FROM myTable
+WHERE col =2;
+```
+
 ## 视图
+
+视图是虚拟的表，本身不包含数据，也就不能对其进行索引操作。
+
+对视图的操作和对普通表的操作一样。
+
+视图具有如下好处:
+
+- 简化复杂的 `SQL` 操作，比如复杂的连接；
+- 只使用实际表的一部分数据；
+- 通过只给用户访问视图的权限，保证数据的安全性；
+- 更改数据格式和表示。
+
+```sql
+CREATE VIEW myView AS
+SELECT Concat(col1, col2) AS concat_col, col3*col4 AS compute_col
+FROM myTable
+WHERE col5 = val;
+```
 
 ## 存储过程
 
+存储过程可以看成是对一系列 SQL 操作的批处理。
+
+使用存储过程的好处:
+
+- 代码封装，保证了一定的安全性；
+- 代码复用；
+- 由于是预先编译，因此具有很高的性能。
+
+命令行中创建存储过程需要自定义分隔符，因为命令行是以 ; 为结束符，而存储过程中也包含了分号，因此会错误把这部分分号当成是结束符，造成语法错误。
+
+包含 `in`、`out` 和 `inout` 三种参数。
+
+给变量赋值都需要用 `select into` 语句。
+
+每次只能给一个变量赋值，不支持集合的操作。
+
+```sql
+delimiter //
+
+create procedure myProcedure( out ret int )
+    begin
+        declare y int;
+        select sum(col1)
+        from myTable
+        into y;
+        select y*y into ret;
+    end //
+
+delimiter ;
+```
+
+```sql
+call myProcedure(@ret);
+select @ret;
+```
+
 ## 游标
+
+在存储过程中使用游标可以对一个结果集进行移动遍历。
+
+游标主要用于交互式应用，其中用户需要对数据集中的任意行进行浏览和修改。
+
+使用游标的四个步骤:
+
+- 声明游标，这个过程没有实际检索出数据；
+- 打开游标；
+- 取出数据；
+- 关闭游标；
+
+```sql
+delimiter //
+create procedure myProcedure(out ret int)
+    begin
+        declare done boolean default 0;
+
+        declare myCursor cursor for
+        select col1 from myTable;
+        # 定义了一个 continue handler，当 sqlstate '02000' 这个条件出现时，会执行 set done = 1
+        declare continue handler for sqlstate '02000' set done = 1;
+
+        open myCursor;
+
+        repeat
+            fetch myCursor into ret;
+            select ret;
+        until done end repeat;
+
+        close myCursor;
+    end //
+ delimiter ;
+```
 
 ## 触发器
 
+触发器会在某个表执行以下语句时而自动执行: `DELETE`、`INSERT`、`UPDATE`。
+
+触发器必须指定在语句执行之前还是之后自动执行，之前执行使用 BEFORE 关键字，之后执行使用 `AFTER` 关键字。
+
+`BEFORE` 用于数据验证和净化，`AFTER` 用于审计跟踪，将修改记录到另外一张表中。
+
+`INSERT` 触发器包含一个名为 NEW 的虚拟表。
+
+```sql
+CREATE TRIGGER myTrigger AFTER INSERT ON myTable
+FOR EACH ROW SELECT NEW.col into @result;
+
+SELECT @result; -- 获取结果
+```
+
+`DELETE` 触发器包含一个名为 `OLD` 的虚拟表，并且是只读的。
+
+`UPDATE` 触发器包含一个名为 `NEW` 和一个名为 `OLD` 的虚拟表，其中 `NEW` 是可以被修改的，而 `OLD` 是只读的。
+
+`MySQL` 不允许在触发器中使用 `CALL` 语句，也就是不能调用存储过程。
+
 ## 事务管理
+
+基本术语:0
+
+- 事务(`transaction`)指一组 `SQL` 语句；
+- 回退(`rollback`)指撤销指定 `SQL` 语句的过程；
+- 提交(`commit`)指将未存储的 `SQL` 语句结果写入数据库表；
+- 保留点(`savepoint`)指事务处理中设置的临时占位符(`placeholder`)，你可以对它发布回退(与回退整个事务处理不同)。
+
+不能回退 `SELECT` 语句，回退 `SELECT` 语句也没意义；也不能回退 `CREATE` 和 `DROP` 语句。
+
+`MySQL` 的事务提交默认是隐式提交，每执行一条语句就把这条语句当成一个事务然后进行提交。
+
+当出现 `START TRANSACTION` 语句时，会关闭隐式提交；当 `COMMIT` 或 `ROLLBACK` 语句执行后，事务会自动关闭，重新恢复隐式提交。
+
+通过设置 `autocommit` 为 0 可以取消自动提交；`autocommit` 标记是针对每个连接而不是针对服务器的。
+
+如果没有设置保留点，`ROLLBACK` 会回退到 `START TRANSACTION` 语句处；如果设置了保留点，并且在 `ROLLBACK` 中指定该保留点，则会回退到该保留点。
+
+```sql
+START TRANSACTION
+// ...
+SAVEPOINT delete1
+// ...
+ROLLBACK TO delete1
+// ...
+COMMIT
+```
 
 ## 字符集
 
+基本术语:
+
+- 字符集为字母和符号的集合；
+- 编码为某个字符集成员的内部表示；
+- 校对字符指定如何比较，主要用于排序和分组。
+
+除了给表指定字符集和校对外，也可以给列指定:
+
+```sql
+CREATE TABLE myTable
+(col VARCHAR(10) CHARACTER SET latin COLLATE latin1_general_ci )
+DEFAULT CHARACTER SET hebrew COLLATE hebrew_general_ci;
+```
+
+可以在排序、分组时指定校对:
+
+```sql
+SELECT *
+FROM myTable
+ORDER BY col COLLATE latin1_general_ci;
+```
+
 ## 权限管理
+
+`MySQL` 的账户信息保存在 `mysql` 这个数据库中。
+
+```sql
+USE mysql;
+SELECT user FROM user;
+```
+
+### 创建账户
+
+新创建的账户没有任何权限。
+
+```sql
+CREATE USER myUser IDENTIFIED BY 'myPassword';
+```
+
+### 修改账户名
+
+```sql
+RENAME myUser TO newUser;
+```
+
+### 删除账户
+
+```sql
+DROP USER myUser;
+```
+
+### 查看权限
+
+```sql
+SHOW GRANTS FOR myUser;
+```
+
+### 授予权限
+
+账户用 username@host 的形式定义，username@% 使用的是默认主机名。
+
+```sql
+GRANT SELECT, INSERT ON myDatabase.* TO myUser;
+```
+
+### 删除权限
+
+`GRANT` 和 `REVOKE` 可在几个层次上控制访问权限:
+
+- 整个服务器，使用 GRANT ALL 和 REVOKE ALL；
+- 整个数据库，使用 ON database.\*；
+- 特定的表，使用 ON database.table；
+- 特定的列；
+- 特定的存储过程。
+
+```sql
+REVOKE SELECT, INSERT ON myDatabase.* FROM myUser;
+```
+
+### 更改密码
+
+必须使用 `Password()` 函数
+
+```sql
+SET PASSWORD FOR myUser = Password('new_password');
+```
