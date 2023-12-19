@@ -163,7 +163,7 @@ export default {
 				{...{ props: { ...this.info } }}
 				// 作用域插槽
 				scopedSlots={{
-          // 插槽名称： 定义箭头函数，返回需要渲染的html
+                    // 插槽名称： 定义箭头函数，返回需要渲染的html
 					default: ({ msg, num2 }) => (
 						<div>
 							<h1>msg: {msg}</h1>
