@@ -329,3 +329,36 @@ data.bits; // 16000
 
 // 对于复杂的转换公式，可以调整为函数以适应。
 ```
+
+## 缓存代理
+
+- 缓存代理一些比较消耗性能的计算进行优化
+- 通过将 `cache` 设置为返回函数的属性来允许访问它
+
+```JavaScript
+const memoize = fn => {
+  const cache = new Map();
+  const cached = function () {
+    const args = Array.prototype.join.call(arguments, '');
+    return cache.has(args)
+      ? cache.get(args)
+      : cache.set(args, fn.apply(this, arguments)) && cache.get(args);
+  };
+  cached.cache = cache;
+  return cached;
+};
+
+const fn = (...arg) => {
+  console.log('开始计算乘积');
+  let a = 1;
+  for (let i = 0, n = arg.length; i < n; i++) {
+    a *= arg[i];
+  }
+  return a;
+};
+
+const proxyMuTe = memoize(fn);
+proxyMuTe(1, 2, 3, 4, 5);
+proxyMuTe(1, 2, 3, 4, 5);
+proxyMuTe;
+```
