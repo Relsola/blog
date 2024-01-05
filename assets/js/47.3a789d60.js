@@ -1,1 +1,0 @@
-(window.webpackJsonp=window.webpackJsonp||[]).push([[47],{265:function(n,e,p){n.exports=p.p+"assets/img/tailwindCSSIntelliSense.1626e9c1.png"}}]);
