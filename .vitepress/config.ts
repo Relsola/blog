@@ -11,8 +11,8 @@ export default defineConfigWithTheme({
 
   themeConfig: {
     logo: 'images/icon.png',
-    nav,
-    sidebar,
+    // nav: '',
+    // sidebar,
     outlineTitle: '本页目录',
     darkModeSwitchLabel: '切换主题',
     sidebarMenuLabel: '菜单',
